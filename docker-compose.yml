@@ -29,7 +29,6 @@ services:
                 network_mode: host
                 command: >-
                         lighthouse
-                        --help
                         --spec=mainnet
                         --network=goerli
                         --debug-level=info
