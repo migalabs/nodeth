@@ -32,6 +32,7 @@ services:
                         --spec=mainnet
                         --network=goerli
                         --debug-level=info
+                        --logfile-debug-level=info
                         --logfile=/root/.lighthouse/lighthouse.log
                         beacon_node
                         --eth1
@@ -128,13 +129,13 @@ services:
                 container_name: lodestar
                 restart: unless-stopped
                 ports:
-                        - 9003:9003
+                        - 9004:9004
                         - 9596:9596
                 network_mode: host
                 command: >-
                         beacon
                         --network=goerli
-                        --port=9003
+                        --port=9004
                         --execution.urls="http://127.0.0.1:8551"
                         --network.connectToDiscv5Bootnodes
                         --suggestedFeeRecipient=${FEE_RECIPIENT}
@@ -147,3 +148,16 @@ services:
                         - /tmp:/tmp
                 depends_on:
                         - "nethermind"
+        
+        prometheus:
+                image: prom/prometheus:v2.36.2
+                container_name: prometheus
+                volumes:
+                - ./prometheus/:/etc/prometheus/
+                command:
+                - '--config.file=/etc/prometheus/prometheus.yml'
+                - '--storage.tsdb.path=/prometheus'
+                - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+                - '--web.console.templates=/usr/share/prometheus/consoles'
+                network_mode: 'host'
+                restart: always
