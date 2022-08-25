@@ -12,11 +12,11 @@ services:
                 command: >-
                         --config=goerli
                         --JsonRpc.Host=0.0.0.0
-                        --JsonRpc.JwtSecretFile=/tmp/jwtsecret
+                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
 
                 volumes:
                         - ./.nethermind:/nethermind/nethermind_db
-                        - /tmp:/tmp
+                        - ./data:/tmp/ethereum
                         - ./.logs:/nethermind/logs
         
         lighthouse:
@@ -44,12 +44,12 @@ services:
                         --enr-udp-port=9001
                         --enr-tcp-port=9001
                         --discovery-port=9001
-                        --jwt-secrets=/tmp/jwtsecret
+                        --jwt-secrets=/tmp/ethereum/jwtsecret
                         --suggested-fee-recipient=${FEE_RECIPIENT}
 
                 volumes:
                         - ./.lighthouse:/root/.lighthouse
-                        - /tmp:/tmp
+                        - ./data:/tmp/ethereum
         
         prysm:
                 image: gcr.io/prysmaticlabs/prysm/beacon-chain:stable
@@ -64,12 +64,12 @@ services:
                         --goerli
                         --suggested-fee-recipient=${FEE_RECIPIENT}
                         --http-web3provider=http://localhost:8551
-                        --jwt-secret=/tmp/jwtsecret
+                        --jwt-secret=/tmp/ethereum/jwtsecret
                         --log-file=/home/.eth2/prysm.log
 
                 volumes:
                         - ./.prysm:/home/.eth2/
-                        - /tmp:/tmp
+                        - ./data:/tmp/ethereum
                 depends_on:
                         - "nethermind"
         
@@ -85,15 +85,16 @@ services:
                         --network=goerli
                         --p2p-port=9002
                         --ee-endpoint=http://localhost:8551
-                        --ee-jwt-secret-file=/tmp/jwtsecret
+                        --ee-jwt-secret-file=/tmp/ethereum/jwtsecret
                         --log-destination=FILE
                         --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
                         --log-file=/opt/teku/.local/share/teku/teku.log
                         --metrics-enabled=true
+                        --rest-api-enabled=true
                 
                 volumes:
                         - ./.teku:/opt/teku/.local/share/teku/
-                        - /tmp:/tmp
+                        - ./data:/tmp/ethereum
                 # Check teku host directory permissions as it throws an error(777)
                 depends_on:
                         - "nethermind"
@@ -111,7 +112,7 @@ services:
                         --web3-url=http://127.0.0.1:8551
                         --rest
                         --metrics
-                        --jwt-secret=/tmp/jwtsecret
+                        --jwt-secret=/tmp/ethereum/jwtsecret
                         --suggested-fee-recipient=${FEE_RECIPIENT}
                         --tcp-port=9003
                         --udp-port=9003
@@ -122,7 +123,7 @@ services:
 
                 volumes:
                         - ./.nimbus:/home/user/.cache/nimbus
-                        - /tmp:/tmp
+                        - ./data:/tmp/ethereum
                 # Check nimbus directory permissions (777)
         
         lodestar:
@@ -140,14 +141,14 @@ services:
                         --execution.urls="http://127.0.0.1:8551"
                         --network.connectToDiscv5Bootnodes
                         --suggestedFeeRecipient=${FEE_RECIPIENT}
-                        --jwt-secret="/tmp/jwtsecret"
+                        --jwt-secret="/tmp/ethereum/jwtsecret"
                         --logFile=/root/.local/share/lodestar/lodestar.log
                         --metrics=true
                         --metrics.port=8010
 
                 volumes:
                         - ./.lodestar:/root/.local/share/lodestar
-                        - /tmp:/tmp
+                        - ./data:/tmp/ethereum
                 depends_on:
                         - "nethermind"
         

@@ -96,6 +96,7 @@ services:
                         --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
                         --log-file=/opt/teku/.local/share/teku/teku.log
                         --metrics-enabled=true
+                        --rest-api-enabled=true
                         --initial-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
                 
                 volumes:
@@ -165,11 +166,25 @@ services:
                 image: prom/prometheus:v2.36.2
                 container_name: prometheus
                 volumes:
-                - ./prometheus/:/etc/prometheus/
+                        - ./prometheus/:/etc/prometheus/
                 command:
-                - '--config.file=/etc/prometheus/prometheus.yml'
-                - '--storage.tsdb.path=/prometheus'
-                - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-                - '--web.console.templates=/usr/share/prometheus/consoles'
+                        - '--config.file=/etc/prometheus/prometheus.yml'
+                        - '--storage.tsdb.path=/prometheus'
+                        - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+                        - '--web.console.templates=/usr/share/prometheus/consoles'
+                network_mode: 'host'
+                restart: always
+        
+        vouch:
+                image: vouch-tdahar:latest
+                build:
+                        context: .
+                        dockerfile: Dockerfile
+                container_name: vouch
+                volumes:
+                - ./.vouch/:/home/.vouch/
+                command: >-
+                        --base-dir=/home/.vouch/
+
                 network_mode: 'host'
                 restart: always
