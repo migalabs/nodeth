@@ -89,6 +89,7 @@ services:
                         --log-destination=FILE
                         --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
                         --log-file=/opt/teku/.local/share/teku/teku.log
+                        --metrics-enabled=true
                 
                 volumes:
                         - ./.teku:/opt/teku/.local/share/teku/
@@ -140,8 +141,9 @@ services:
                         --network.connectToDiscv5Bootnodes
                         --suggestedFeeRecipient=${FEE_RECIPIENT}
                         --jwt-secret="/tmp/jwtsecret"
-                        --metrics.port=8010
                         --logFile=/root/.local/share/lodestar/lodestar.log
+                        --metrics=true
+                        --metrics.port=8010
 
                 volumes:
                         - ./.lodestar:/root/.local/share/lodestar
