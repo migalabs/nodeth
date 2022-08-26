@@ -1,0 +1,190 @@
+version: '3.5'
+
+services:
+        nethermind:
+                image: nethermind/nethermind
+                container_name: nethermind
+                restart: unless-stopped
+                ports:
+                        - 8545:8545
+                        - 30303:30303
+                network_mode: host
+                command: >-
+                        --config=mainnet
+                        --JsonRpc.Host=0.0.0.0
+                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+
+                volumes:
+                        - ./.nethermind:/nethermind/nethermind_db
+                        - ./data:/tmp/ethereum
+                        - ./.logs:/nethermind/logs
+        
+        lighthouse:
+                image: sigp/lighthouse
+                container_name: lighthouse
+                restart: unless-stopped
+                ports:
+                        - 9001:9001
+                        - 5052:5052
+                network_mode: host
+                command: >-
+                        lighthouse
+                        --spec=mainnet
+                        --network=mainnet
+                        --debug-level=info
+                        --logfile-debug-level=info
+                        --logfile=/root/.lighthouse/lighthouse.log
+                        beacon_node
+                        --eth1
+                        --http
+                        --http-allow-sync-stalled
+                        --metrics
+                        --merge
+                        --execution-endpoints=http://127.0.0.1:8551
+                        --enr-udp-port=9001
+                        --enr-tcp-port=9001
+                        --discovery-port=9001
+                        --jwt-secrets=/tmp/ethereum/jwtsecret
+                        --suggested-fee-recipient=${FEE_RECIPIENT}
+                        --checkpoint-block=/tmp/ethereum/checkpoint_data/block.finalized.ssz
+                        --checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
+
+                volumes:
+                        - ./.lighthouse:/root/.lighthouse
+                        - ./data:/tmp/ethereum
+        
+        prysm:
+                image: gcr.io/prysmaticlabs/prysm/beacon-chain:stable
+                container_name: prysm
+                restart: unless-stopped
+                ports:
+                        - 9000:9000
+                        - 3500:3500
+                network_mode: host
+                command: >-
+                        --accept-terms-of-use
+                        --mainnet
+                        --suggested-fee-recipient=${FEE_RECIPIENT}
+                        --http-web3provider=http://localhost:8551
+                        --jwt-secret=/tmp/ethereum/jwtsecret
+                        --log-file=/home/.eth2/prysm.log
+                        --checkpoint-block=/tmp/ethereum/checkpoint_data/block.finalized.ssz
+                        --checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
+                        --genesis-state=/tmp/ethereum/checkpoint_data/state.genesis.ssz
+                        --weak-subjectivity-checkpoint 0xe8b4971415658f17e00fb519436d4793d7aa308073fe90255fab554c9fda498e:116778
+
+                volumes:
+                        - ./.prysm:/home/.eth2/
+                        - ./data:/tmp/ethereum
+                depends_on:
+                        - "nethermind"
+        
+        teku:
+                image: consensys/teku
+                container_name: teku
+                restart: unless-stopped
+                ports:
+                        - 9002:9002
+                        - 5051:5051
+                network_mode: host
+                command: >-
+                        --network=mainnet
+                        --p2p-port=9002
+                        --ee-endpoint=http://localhost:8551
+                        --ee-jwt-secret-file=/tmp/ethereum/jwtsecret
+                        --log-destination=FILE
+                        --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
+                        --log-file=/opt/teku/.local/share/teku/teku.log
+                        --metrics-enabled=true
+                        --rest-api-enabled=true
+                        --initial-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
+                
+                volumes:
+                        - ./.teku:/opt/teku/.local/share/teku/
+                        - ./data:/tmp/ethereum
+                # Check teku host directory permissions as it throws an error(777)
+                depends_on:
+                        - "nethermind"
+        
+        nimbus:
+                image: statusim/nimbus-eth2:amd64-latest
+                container_name: nimbus
+                restart: unless-stopped
+                ports:
+                        - 9003:9003
+                        - 5053:5053
+                network_mode: host
+                command: >-
+                        --network=mainnet
+                        --web3-url=http://127.0.0.1:8551
+                        --finalized-checkpoint-block=/tmp/ethereum/checkpoint_data/block.finalized.ssz
+                        --finalized-checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
+                        --rest
+                        --metrics
+                        --jwt-secret=/tmp/ethereum/jwtsecret
+                        --suggested-fee-recipient=${FEE_RECIPIENT}
+                        --tcp-port=9003
+                        --udp-port=9003
+                        --rest-port=5053
+                        --metrics-port=8009
+                        --log-file=/home/user/.cache/nimbus/nimbus.log
+
+
+                volumes:
+                        - ./.nimbus:/home/user/.cache/nimbus
+                        - ./data:/tmp/ethereum
+                # Check nimbus directory permissions (777)
+        
+        lodestar:
+                image: chainsafe/lodestar
+                container_name: lodestar
+                restart: unless-stopped
+                ports:
+                        - 9004:9004
+                        - 9596:9596
+                network_mode: host
+                command: >-
+                        beacon
+                        --network=mainnet
+                        --port=9004
+                        --execution.urls="http://127.0.0.1:8551"
+                        --network.connectToDiscv5Bootnodes
+                        --suggestedFeeRecipient=${FEE_RECIPIENT}
+                        --jwt-secret="/tmp/ethereum/jwtsecret"
+                        --logFile=/root/.local/share/lodestar/lodestar.log
+                        --metrics=true
+                        --metrics.port=8010
+                        --checkpointSyncUrl=${CHECKPOINT_URL}
+
+                volumes:
+                        - ./.lodestar:/root/.local/share/lodestar
+                        - ./data:/tmp/ethereum
+                depends_on:
+                        - "nethermind"
+        
+        prometheus:
+                image: prom/prometheus:v2.36.2
+                container_name: prometheus
+                volumes:
+                        - ./prometheus/:/etc/prometheus/
+                command:
+                        - '--config.file=/etc/prometheus/prometheus.yml'
+                        - '--storage.tsdb.path=/prometheus'
+                        - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+                        - '--web.console.templates=/usr/share/prometheus/consoles'
+                network_mode: 'host'
+                restart: always
+        
+        vouch:
+                image: vouch-tdahar:latest
+                build:
+                        context: .
+                        dockerfile: Dockerfile
+                container_name: vouch
+                volumes:
+                - ./.vouch/:/home/.vouch/
+                command: >-
+                        --base-dir=/home/.vouch/
+
+                network_mode: 'host'
+                restart: always
