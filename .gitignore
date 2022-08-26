@@ -1,0 +1,7 @@
+.prysm/**
+.lighthouse/**
+.teku/**
+.nimbus/**
+.lodestar/**
+.nethermind/**
+.logs/**

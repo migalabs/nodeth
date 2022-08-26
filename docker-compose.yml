@@ -10,7 +10,7 @@ services:
                         - 30303:30303
                 network_mode: host
                 command: >-
-                        --config=mainnet
+                        --config=${NETWORK}
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
 
@@ -30,7 +30,7 @@ services:
                 command: >-
                         lighthouse
                         --spec=mainnet
-                        --network=mainnet
+                        --network=${NETWORK}
                         --debug-level=info
                         --logfile-debug-level=info
                         --logfile=/root/.lighthouse/lighthouse.log
@@ -39,15 +39,12 @@ services:
                         --http
                         --http-allow-sync-stalled
                         --metrics
-                        --merge
                         --execution-endpoints=http://127.0.0.1:8551
                         --enr-udp-port=9001
                         --enr-tcp-port=9001
                         --discovery-port=9001
                         --jwt-secrets=/tmp/ethereum/jwtsecret
                         --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --checkpoint-block=/tmp/ethereum/checkpoint_data/block.finalized.ssz
-                        --checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
 
                 volumes:
                         - ./.lighthouse:/root/.lighthouse
@@ -63,16 +60,11 @@ services:
                 network_mode: host
                 command: >-
                         --accept-terms-of-use
-                        --mainnet
+                        --${NETWORK}
                         --suggested-fee-recipient=${FEE_RECIPIENT}
                         --http-web3provider=http://localhost:8551
                         --jwt-secret=/tmp/ethereum/jwtsecret
                         --log-file=/home/.eth2/prysm.log
-                        --checkpoint-block=/tmp/ethereum/checkpoint_data/block.finalized.ssz
-                        --checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
-                        --genesis-state=/tmp/ethereum/checkpoint_data/state.genesis.ssz
-                        --weak-subjectivity-checkpoint 0xe8b4971415658f17e00fb519436d4793d7aa308073fe90255fab554c9fda498e:116778
-
                 volumes:
                         - ./.prysm:/home/.eth2/
                         - ./data:/tmp/ethereum
@@ -88,7 +80,7 @@ services:
                         - 5051:5051
                 network_mode: host
                 command: >-
-                        --network=mainnet
+                        --network=${NETWORK}
                         --p2p-port=9002
                         --ee-endpoint=http://localhost:8551
                         --ee-jwt-secret-file=/tmp/ethereum/jwtsecret
@@ -97,7 +89,6 @@ services:
                         --log-file=/opt/teku/.local/share/teku/teku.log
                         --metrics-enabled=true
                         --rest-api-enabled=true
-                        --initial-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
                 
                 volumes:
                         - ./.teku:/opt/teku/.local/share/teku/
@@ -115,10 +106,8 @@ services:
                         - 5053:5053
                 network_mode: host
                 command: >-
-                        --network=mainnet
+                        --network=${NETWORK}
                         --web3-url=http://127.0.0.1:8551
-                        --finalized-checkpoint-block=/tmp/ethereum/checkpoint_data/block.finalized.ssz
-                        --finalized-checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
                         --rest
                         --metrics
                         --jwt-secret=/tmp/ethereum/jwtsecret
@@ -145,7 +134,7 @@ services:
                 network_mode: host
                 command: >-
                         beacon
-                        --network=mainnet
+                        --network=${NETWORK}
                         --port=9004
                         --execution.urls="http://127.0.0.1:8551"
                         --network.connectToDiscv5Bootnodes
@@ -154,7 +143,6 @@ services:
                         --logFile=/root/.local/share/lodestar/lodestar.log
                         --metrics=true
                         --metrics.port=8010
-                        --checkpointSyncUrl=${CHECKPOINT_URL}
 
                 volumes:
                         - ./.lodestar:/root/.local/share/lodestar
@@ -175,16 +163,16 @@ services:
                 network_mode: 'host'
                 restart: always
         
-        vouch:
-                image: vouch-tdahar:latest
-                build:
-                        context: .
-                        dockerfile: Dockerfile
-                container_name: vouch
-                volumes:
-                - ./.vouch/:/home/.vouch/
-                command: >-
-                        --base-dir=/home/.vouch/
+        # vouch:
+        #         image: vouch-tdahar:latest
+        #         build:
+        #                 context: .
+        #                 dockerfile: Dockerfile
+        #         container_name: vouch
+        #         volumes:
+        #         - ./.vouch/:/home/.vouch/
+        #         command: >-
+        #                 --base-dir=/home/.vouch/
 
-                network_mode: 'host'
-                restart: always
+        #         network_mode: 'host'
+        #         restart: always
