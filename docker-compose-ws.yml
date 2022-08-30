@@ -169,16 +169,12 @@ services:
                 network_mode: 'host'
                 restart: always
         
-        # vouch:
-        #         image: vouch-tdahar:latest
-        #         build:
-        #                 context: .
-        #                 dockerfile: Dockerfile
-        #         container_name: vouch
-        #         volumes:
-        #         - ./.vouch/:/home/.vouch/
-        #         command: >-
-        #                 --base-dir=/home/.vouch/
+        vouch:
+                image: vouch-tdahar:latest
+                build:
+                        context: ./.vouch/
+                        dockerfile: Dockerfile
+                container_name: vouch
 
-        #         network_mode: 'host'
-        #         restart: always
+                network_mode: 'host'
+                restart: always
