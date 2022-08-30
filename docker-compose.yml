@@ -200,9 +200,10 @@ services:
                         - POSTGRES_USER=${POSTGRES_USER}
                         - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
                 volumes: 
-                        - ./data/postgres/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
-                        - ./data/postgres:/var/lib/postgresql
+                        - ./data/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+                        - ./.postgres-data/:/var/lib/postgresql
                 network_mode: 'host'
+
         
         vouch:
                 image: vouch-tdahar:latest
