@@ -169,6 +169,17 @@ services:
                 network_mode: 'host'
                 restart: always
         
+        db:
+                image: postgres:14.1-alpine
+                restart: always
+                environment:
+                        - POSTGRES_USER=${POSTGRES_USER}
+                        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                volumes: 
+                        - ./data/postgres/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+                        - ./data/postgres:/var/lib/postgresql
+                network_mode: 'host'
+        
         vouch:
                 image: vouch-tdahar:latest
                 build:
@@ -178,3 +189,5 @@ services:
 
                 network_mode: 'host'
                 restart: always
+                depends_on:
+                        - db
