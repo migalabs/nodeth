@@ -191,3 +191,5 @@ services:
                 restart: always
                 depends_on:
                         - db
+                volumes: 
+                        - ./.vouch/data:/app/logs
