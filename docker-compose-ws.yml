@@ -13,6 +13,8 @@ services:
                         --config=${NETWORK}
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --HealthChecks.Enabled=true 
+                        --HealthChecks.UIEnabled=true
 
                 volumes:
                         - ./apps-data/.nethermind:/nethermind/nethermind_db
