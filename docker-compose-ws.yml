@@ -10,14 +10,14 @@ services:
                         - 30303:30303
                 network_mode: host
                 command: >-
-                        --config=goerli
+                        --config=${NETWORK}
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
 
                 volumes:
-                        - ./.nethermind:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind:/nethermind/nethermind_db
                         - ./data:/tmp/ethereum
-                        - ./.logs:/nethermind/logs
+                        - ./apps-data/.logs:/nethermind/logs
         
         lighthouse:
                 image: sigp/lighthouse
@@ -30,7 +30,7 @@ services:
                 command: >-
                         lighthouse
                         --spec=mainnet
-                        --network=goerli
+                        --network=${NETWORK}
                         --debug-level=info
                         --logfile-debug-level=info
                         --logfile=/root/.lighthouse/lighthouse.log
@@ -50,7 +50,7 @@ services:
                         --checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
 
                 volumes:
-                        - ./.lighthouse:/root/.lighthouse
+                        - ./apps-data/.lighthouse:/root/.lighthouse
                         - ./data:/tmp/ethereum
         
         prysm:
@@ -63,7 +63,7 @@ services:
                 network_mode: host
                 command: >-
                         --accept-terms-of-use
-                        --goerli
+                        --${NETWORK}
                         --suggested-fee-recipient=${FEE_RECIPIENT}
                         --http-web3provider=http://localhost:8551
                         --jwt-secret=/tmp/ethereum/jwtsecret
@@ -74,7 +74,7 @@ services:
                         --weak-subjectivity-checkpoint 0xe8b4971415658f17e00fb519436d4793d7aa308073fe90255fab554c9fda498e:116778
 
                 volumes:
-                        - ./.prysm:/home/.eth2/
+                        - ./apps-data/.prysm:/home/.eth2/
                         - ./data:/tmp/ethereum
                 depends_on:
                         - "nethermind"
@@ -88,7 +88,7 @@ services:
                         - 5051:5051
                 network_mode: host
                 command: >-
-                        --network=goerli
+                        --network=${NETWORK}
                         --p2p-port=9002
                         --ee-endpoint=http://localhost:8551
                         --ee-jwt-secret-file=/tmp/ethereum/jwtsecret
@@ -100,7 +100,7 @@ services:
                         --initial-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
                 
                 volumes:
-                        - ./.teku:/opt/teku/.local/share/teku/
+                        - ./apps-data/.teku:/opt/teku/.local/share/teku/
                         - ./data:/tmp/ethereum
                 # Check teku host directory permissions as it throws an error(777)
                 depends_on:
@@ -115,7 +115,7 @@ services:
                         - 5053:5053
                 network_mode: host
                 command: >-
-                        --network=goerli
+                        --network=${NETWORK}
                         --web3-url=http://127.0.0.1:8551
                         --finalized-checkpoint-block=/tmp/ethereum/checkpoint_data/block.finalized.ssz
                         --finalized-checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
@@ -131,7 +131,7 @@ services:
 
 
                 volumes:
-                        - ./.nimbus:/home/user/.cache/nimbus
+                        - ./apps-data/.nimbus:/home/user/.cache/nimbus
                         - ./data:/tmp/ethereum
                 # Check nimbus directory permissions (777)
         
@@ -145,7 +145,7 @@ services:
                 network_mode: host
                 command: >-
                         beacon
-                        --network=goerli
+                        --network=${NETWORK}
                         --port=9004
                         --execution.urls="http://127.0.0.1:8551"
                         --network.connectToDiscv5Bootnodes
@@ -157,7 +157,7 @@ services:
                         --checkpointSyncUrl=${CHECKPOINT_URL}
 
                 volumes:
-                        - ./.lodestar:/root/.local/share/lodestar
+                        - ./apps-data/.lodestar:/root/.local/share/lodestar
                         - ./data:/tmp/ethereum
                 depends_on:
                         - "nethermind"
@@ -182,9 +182,7 @@ services:
                         dockerfile: Dockerfile
                 container_name: vouch
                 volumes:
-                - ./.vouch/:/home/.vouch/
-                command: >-
-                        --base-dir=/home/.vouch/
+                        - ./apps-data/.vouch/data:/app/logs
 
                 network_mode: 'host'
                 restart: always

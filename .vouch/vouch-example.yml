@@ -1,0 +1,19 @@
+log-file: /app/logs/vouch.log
+beacon-node-addresses: [localhost:3500, localhost:5052, localhost:5051, localhost:5053, localhost:9596]
+accountmanager:
+  wallet:
+    accounts:
+      - Validators
+    passphrases:
+      - secret
+feerecipient:
+  default-address: '0x0000000000000000000000000000000000000001'
+
+strategies:
+  # The beaconblockproposal strategy obtains beacon block proposals from multiple sources.
+  beaconblockproposal:
+    # style can be 'best', which obtains blocks from all nodes and selects the best, or 'first', which uses the first returned
+    style: best
+
+database:
+  url: "postgresql://<user>:<password>@localhost:5432/vouch"
