@@ -15,7 +15,7 @@ services:
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
 
                 volumes:
-                        - ./.nethermind:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind:/nethermind/nethermind_db
                         - ./data:/tmp/ethereum
                         - ./.logs:/nethermind/logs
         
@@ -48,7 +48,7 @@ services:
                         --checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
 
                 volumes:
-                        - ./.lighthouse:/root/.lighthouse
+                        - ./apps-data/.lighthouse:/root/.lighthouse
                         - ./data:/tmp/ethereum
         
         prysm:
@@ -68,7 +68,7 @@ services:
                         --log-file=/home/.eth2/prysm.log
                         --checkpoint-sync-url=${CHECKPOINT_URL}
                 volumes:
-                        - ./.prysm:/home/.eth2/
+                        - ./apps-data/.prysm:/home/.eth2/
                         - ./data:/tmp/ethereum
                 depends_on:
                         - "nethermind"
@@ -94,7 +94,7 @@ services:
                         --initial-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
                 
                 volumes:
-                        - ./.teku:/opt/teku/.local/share/teku/
+                        - ./apps-data/.teku:/opt/teku/.local/share/teku/
                         - ./data:/tmp/ethereum
                 # Check teku host directory permissions as it throws an error(777)
                 depends_on:
@@ -125,7 +125,7 @@ services:
 
 
                 volumes:
-                        - ./.nimbus:/home/user/.cache/nimbus
+                        - ./apps-data/.nimbus:/home/user/.cache/nimbus
                         - ./data:/tmp/ethereum
                 # Check nimbus directory permissions (777)
         
@@ -151,7 +151,7 @@ services:
                         --checkpointSyncUrl=${CHECKPOINT_URL}
 
                 volumes:
-                        - ./.lodestar:/root/.local/share/lodestar
+                        - ./apps-data/.lodestar:/root/.local/share/lodestar
                         - ./data:/tmp/ethereum
                 depends_on:
                         - "nethermind"
@@ -177,7 +177,7 @@ services:
                         - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
                 volumes: 
                         - ./data/postgres/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
-                        - ./data/postgres:/var/lib/postgresql
+                        - ./apps-data/.postgres-data/:/var/lib/postgresql
                 network_mode: 'host'
         
         vouch:
@@ -192,4 +192,4 @@ services:
                 depends_on:
                         - db
                 volumes: 
-                        - ./.vouch/data:/app/logs
+                        - ./app-data/.vouch/data:/app/logs

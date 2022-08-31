@@ -1,10 +1,4 @@
-.prysm/**
-.lighthouse/**
-.teku/**
-.nimbus/**
-.lodestar/**
-.nethermind/**
-.logs/**
+apps-data/**
 .env
 .vouch/data/*
 .vouch/vouch.yml
