@@ -168,7 +168,7 @@ services:
         vouch:
                 image: vouch-tdahar:latest
                 build:
-                        context: .
+                        context: ./.vouch/
                         dockerfile: Dockerfile
                 container_name: vouch
                 volumes:
