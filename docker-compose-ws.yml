@@ -101,6 +101,34 @@ services:
                 # Check teku host directory permissions as it throws an error(777)
                 depends_on:
                         - "nethermind"
+        nimbus-sproul:
+                image: nimbus-sproul:latest
+                build:
+                        context: ./.nimbus/
+                        dockerfile: Dockerfile
+                container_name: nimbus-sproul
+                restart: unless-stopped
+                ports:
+                        - 9003:9003
+                        - 5053:5053
+                network_mode: host
+                command: >-
+                        --network=${NETWORK}
+                        --web3-url=http://127.0.0.1:8551
+                        --finalized-checkpoint-block=/tmp/ethereum/checkpoint_data/block.finalized.ssz
+                        --finalized-checkpoint-state=/tmp/ethereum/checkpoint_data/state.finalized.ssz
+                        --rest
+                        --metrics
+                        --jwt-secret=/tmp/ethereum/jwtsecret
+                        --suggested-fee-recipient=${FEE_RECIPIENT}
+                        --tcp-port=9003
+                        --udp-port=9003
+                        --rest-port=5053
+                        --metrics-port=8009
+                        --log-file=/home/user/.cache/nimbus/nimbus.log
+                volumes:
+                        - ./apps-data/.nimbus-sproul:/app/build/data/
+                        - ./data:/tmp/ethereum
         
         nimbus:
                 image: statusim/nimbus-eth2:amd64-latest
