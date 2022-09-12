@@ -1,9 +1,9 @@
 version: '3.5'
 
 services:
-        nethermind:
+        nethermind-lh:
                 image: nethermind/nethermind
-                container_name: nethermind
+                container_name: nethermind-lh
                 restart: unless-stopped
                 ports:
                         - 8545:8545
@@ -12,14 +12,18 @@ services:
                 command: >-
                         --config=${NETWORK}
                         --JsonRpc.Host=0.0.0.0
+                        --JsonRpc.Port=8545
+                        --JsonRpc.EnginePort=8551
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --Network.P2PPort=30303
+                        --Network.DiscoveryPort=30303
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
 
+
                 volumes:
-                        - ./apps-data/.nethermind:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-lh:/nethermind/nethermind_db
                         - ./data:/tmp/ethereum
-                        - ./apps-data/.logs:/nethermind/logs
         
         lighthouse:
                 image: sigp/lighthouse
@@ -51,7 +55,31 @@ services:
                 volumes:
                         - ./apps-data/.lighthouse:/root/.lighthouse
                         - ./data:/tmp/ethereum
-        
+                depends_on:
+                        - nethermind-lh
+        nethermind-prysm:
+                image: nethermind/nethermind
+                container_name: nethermind-prysm
+                restart: unless-stopped
+                ports:
+                        - 8546:8546
+                        - 30304:30304
+                network_mode: host
+                command: >-
+                        --config=${NETWORK}
+                        --JsonRpc.Host=0.0.0.0
+                        --JsonRpc.Port=8546
+                        --JsonRpc.EnginePort=8552
+                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --Network.P2PPort=30304
+                        --Network.DiscoveryPort=30304
+                        --HealthChecks.Enabled=true 
+                        --HealthChecks.UIEnabled=true
+
+
+                volumes:
+                        - ./apps-data/.nethermind-prysm:/nethermind/nethermind_db
+                        - ./data:/tmp/ethereum
         prysm:
                 image: gcr.io/prysmaticlabs/prysm/beacon-chain:stable
                 container_name: prysm
@@ -64,15 +92,37 @@ services:
                         --accept-terms-of-use
                         --${NETWORK}
                         --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --http-web3provider=http://localhost:8551
+                        --http-web3provider=http://localhost:8552
                         --jwt-secret=/tmp/ethereum/jwtsecret
                         --log-file=/home/.eth2/prysm.log
                 volumes:
                         - ./apps-data/.prysm:/home/.eth2/
                         - ./data:/tmp/ethereum
                 depends_on:
-                        - "nethermind"
-        
+                        - "nethermind-prysm"
+        nethermind-teku:
+                image: nethermind/nethermind
+                container_name: nethermind-teku
+                restart: unless-stopped
+                ports:
+                        - 8547:8547
+                        - 30305:30305
+                network_mode: host
+                command: >-
+                        --config=${NETWORK}
+                        --JsonRpc.Host=0.0.0.0
+                        --JsonRpc.Port=8547
+                        --JsonRpc.EnginePort=8553
+                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --Network.P2PPort=30305
+                        --Network.DiscoveryPort=30305
+                        --HealthChecks.Enabled=true 
+                        --HealthChecks.UIEnabled=true
+
+
+                volumes:
+                        - ./apps-data/.nethermind-teku:/nethermind/nethermind_db
+                        - ./data:/tmp/ethereum
         teku:
                 image: consensys/teku
                 container_name: teku
@@ -84,7 +134,7 @@ services:
                 command: >-
                         --network=${NETWORK}
                         --p2p-port=9002
-                        --ee-endpoint=http://localhost:8551
+                        --ee-endpoint=http://localhost:8553
                         --ee-jwt-secret-file=/tmp/ethereum/jwtsecret
                         --log-destination=FILE
                         --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
@@ -97,7 +147,30 @@ services:
                         - ./data:/tmp/ethereum
                 # Check teku host directory permissions as it throws an error(777)
                 depends_on:
-                        - "nethermind"
+                        - "nethermind-teku"
+        nethermind-nimbus:
+                image: nethermind/nethermind
+                container_name: nethermind-nimbus
+                restart: unless-stopped
+                ports:
+                        - 8548:8548
+                        - 30306:30306
+                network_mode: host
+                command: >-
+                        --config=${NETWORK}
+                        --JsonRpc.Host=0.0.0.0
+                        --JsonRpc.Port=8548
+                        --JsonRpc.EnginePort=8554
+                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --Network.P2PPort=30306
+                        --Network.DiscoveryPort=30306
+                        --HealthChecks.Enabled=true 
+                        --HealthChecks.UIEnabled=true
+
+
+                volumes:
+                        - ./apps-data/.nethermind-nimbus:/nethermind/nethermind_db
+                        - ./data:/tmp/ethereum
         nimbus-sproul:
                 image: nimbus-sproul:latest
                 build:
@@ -111,7 +184,7 @@ services:
                 network_mode: host
                 command: >-
                         --network=${NETWORK}
-                        --web3-url=http://127.0.0.1:8551
+                        --web3-url=http://127.0.0.1:8554
                         --rest
                         --metrics
                         --jwt-secret=/tmp/ethereum/jwtsecret
@@ -127,6 +200,8 @@ services:
                         - ./apps-data/.nimbus-sproul:/app/build/data/shared_mainnet_0/
                         - ./data:/tmp/ethereum
                 # Check nimbus directory permissions (777)
+                depends_on:
+                        - nethermind-nimbus
         nimbus:
                 image: statusim/nimbus-eth2:amd64-latest
                 container_name: nimbus
@@ -137,7 +212,7 @@ services:
                 network_mode: host
                 command: >-
                         --network=${NETWORK}
-                        --web3-url=http://127.0.0.1:8551
+                        --web3-url=http://127.0.0.1:8554
                         --rest
                         --metrics
                         --jwt-secret=/tmp/ethereum/jwtsecret
@@ -152,8 +227,33 @@ services:
                 volumes:
                         - ./apps-data/.nimbus:/home/user/.cache/nimbus
                         - ./data:/tmp/ethereum
+                depends_on:
+                        - nethermind-nimbus
                 # Check nimbus directory permissions (777)
-        
+
+        nethermind-lodestar:
+                image: nethermind/nethermind
+                container_name: nethermind-lodestar
+                restart: unless-stopped
+                ports:
+                        - 8549:8549
+                        - 30307:30307
+                network_mode: host
+                command: >-
+                        --config=${NETWORK}
+                        --JsonRpc.Host=0.0.0.0
+                        --JsonRpc.Port=8549
+                        --JsonRpc.EnginePort=8555
+                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --Network.P2PPort=30307
+                        --Network.DiscoveryPort=30307
+                        --HealthChecks.Enabled=true 
+                        --HealthChecks.UIEnabled=true
+
+
+                volumes:
+                        - ./apps-data/.nethermind-lodestar:/nethermind/nethermind_db
+                        - ./data:/tmp/ethereum
         lodestar:
                 image: chainsafe/lodestar
                 container_name: lodestar
@@ -166,7 +266,7 @@ services:
                         beacon
                         --network=${NETWORK}
                         --port=9004
-                        --execution.urls="http://127.0.0.1:8551"
+                        --execution.urls="http://127.0.0.1:8555"
                         --network.connectToDiscv5Bootnodes
                         --suggestedFeeRecipient=${FEE_RECIPIENT}
                         --jwt-secret="/tmp/ethereum/jwtsecret"
@@ -178,7 +278,7 @@ services:
                         - ./apps-data/.lodestar:/root/.local/share/lodestar
                         - ./data:/tmp/ethereum
                 depends_on:
-                        - "nethermind"
+                        - "nethermind-lodestar"
         
         prometheus:
                 image: prom/prometheus:v2.36.2
