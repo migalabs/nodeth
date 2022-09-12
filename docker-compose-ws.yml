@@ -49,7 +49,7 @@ services:
                         --discovery-port=9001
                         --jwt-secrets=/tmp/ethereum/jwtsecret
                         --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --checkpoint-sync-url "http://${CHECKPOINT_URL}:5052"
+                        --checkpoint-sync-url "http://${CHECKPOINT_URL}"
 
                 volumes:
                         - ./apps-data/.lighthouse:/root/.lighthouse
@@ -94,8 +94,8 @@ services:
                         --http-web3provider=http://localhost:8552
                         --jwt-secret=/tmp/ethereum/jwtsecret
                         --log-file=/home/.eth2/prysm.log
-                        --checkpoint-sync-url=http://${CHECKPOINT_URL}:5052 
-                        --genesis-beacon-api-url=http://${CHECKPOINT_URL}:5052
+                        --checkpoint-sync-url=http://${CHECKPOINT_URL} 
+                        --genesis-beacon-api-url=http://${CHECKPOINT_URL}
                 volumes:
                         - ./apps-data/.prysm:/home/.eth2/
                         - ./data:/tmp/ethereum
@@ -142,7 +142,7 @@ services:
                         --log-file=/opt/teku/.local/share/teku/teku.log
                         --metrics-enabled=true
                         --rest-api-enabled=true
-                        --initial-state=http://${CHECKPOINT_URL}:5052/eth/v2/debug/beacon/states/finalized
+                        --initial-state=http://${CHECKPOINT_URL}/eth/v2/debug/beacon/states/finalized
                 
                 volumes:
                         - ./apps-data/.teku:/opt/teku/.local/share/teku/
@@ -186,7 +186,7 @@ services:
                 network_mode: host
                 command: trustedNodeSync 
                         --network:${NETWORK} 
-                        --trusted-node-url=http://${CHECKPOINT_URL}:5052
+                        --trusted-node-url=http://${CHECKPOINT_URL}
 
                 volumes:
                         - ./apps-data/.nimbus-sproul:/app/build/data/shared_mainnet_0/
@@ -204,7 +204,7 @@ services:
                 network_mode: host
                 command: trustedNodeSync 
                         --network:${NETWORK} 
-                        --trusted-node-url=http://${CHECKPOINT_URL}:5052
+                        --trusted-node-url=http://${CHECKPOINT_URL}
 
 
                 volumes:
