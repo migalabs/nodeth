@@ -309,8 +309,6 @@ services:
 
                 network_mode: 'host'
                 restart: always
-                depends_on:
-                        - db
                 volumes: 
                         - ./apps-data/.vouch/data:/app/logs
 
