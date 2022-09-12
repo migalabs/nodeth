@@ -10,6 +10,7 @@ services:
                         - 30303:30303
                 network_mode: host
                 command: >-
+                        --log=TRACE
                         --config=${NETWORK}
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8545
@@ -20,7 +21,9 @@ services:
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
                 volumes:
-                        - ./apps-data/.nethermind-lh:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-lh/logs:/nethermind/logs
+                        - ./apps-data/.nethermind-lh/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         
         lighthouse:
@@ -49,7 +52,7 @@ services:
                         --discovery-port=9001
                         --jwt-secrets=/tmp/ethereum/jwtsecret
                         --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --checkpoint-sync-url "http://${CHECKPOINT_URL}"
+                        --checkpoint-sync-url "${CHECKPOINT_URL}"
 
                 volumes:
                         - ./apps-data/.lighthouse:/root/.lighthouse
@@ -77,7 +80,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-prysm:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-prysm/logs:/nethermind/logs
+                        - ./apps-data/.nethermind-prysm/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         prysm:
                 image: gcr.io/prysmaticlabs/prysm/beacon-chain:stable
@@ -94,8 +99,8 @@ services:
                         --http-web3provider=http://localhost:8552
                         --jwt-secret=/tmp/ethereum/jwtsecret
                         --log-file=/home/.eth2/prysm.log
-                        --checkpoint-sync-url=http://${CHECKPOINT_URL} 
-                        --genesis-beacon-api-url=http://${CHECKPOINT_URL}
+                        --checkpoint-sync-url=${CHECKPOINT_URL} 
+                        --genesis-beacon-api-url=${CHECKPOINT_URL}
                 volumes:
                         - ./apps-data/.prysm:/home/.eth2/
                         - ./data:/tmp/ethereum
@@ -122,7 +127,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-teku:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-teku/logs:/nethermind/logs
+                        - ./apps-data/.nethermind-teku/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         teku:
                 image: consensys/teku
@@ -142,7 +149,7 @@ services:
                         --log-file=/opt/teku/.local/share/teku/teku.log
                         --metrics-enabled=true
                         --rest-api-enabled=true
-                        --initial-state=http://${CHECKPOINT_URL}/eth/v2/debug/beacon/states/finalized
+                        --initial-state=${CHECKPOINT_URL}/eth/v2/debug/beacon/states/finalized
                 
                 volumes:
                         - ./apps-data/.teku:/opt/teku/.local/share/teku/
@@ -171,7 +178,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-nimbus:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-nimbus/logs:/nethermind/logs
+                        - ./apps-data/.nethermind-nimbus/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         nimbus-sproul:
                 image: nimbus-sproul:latest
@@ -186,7 +195,7 @@ services:
                 network_mode: host
                 command: trustedNodeSync 
                         --network:${NETWORK} 
-                        --trusted-node-url=http://${CHECKPOINT_URL}
+                        --trusted-node-url=${CHECKPOINT_URL}
 
                 volumes:
                         - ./apps-data/.nimbus-sproul:/app/build/data/shared_mainnet_0/
@@ -204,7 +213,7 @@ services:
                 network_mode: host
                 command: trustedNodeSync 
                         --network:${NETWORK} 
-                        --trusted-node-url=http://${CHECKPOINT_URL}
+                        --trusted-node-url=${CHECKPOINT_URL}
 
 
                 volumes:
@@ -235,7 +244,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-lodestar:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
+                        - ./apps-data/.nethermind-lodestar/logs:/nethermind/logs
+                        - ./apps-data/.nethermind-lodestar/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         lodestar:
                 image: chainsafe/lodestar
