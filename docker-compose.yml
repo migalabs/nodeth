@@ -14,6 +14,7 @@ services:
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8545
                         --JsonRpc.EnginePort=8551
+                        --JsonRpc.AdditionalRpcUrls=http://localhost:8551|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
                         --Network.P2PPort=30303
                         --Network.DiscoveryPort=30303
@@ -72,6 +73,7 @@ services:
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8546
                         --JsonRpc.EnginePort=8552
+                        --JsonRpc.AdditionalRpcUrls=http://localhost:8552|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
                         --Network.P2PPort=30304
                         --Network.DiscoveryPort=30304
@@ -117,6 +119,7 @@ services:
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8547
                         --JsonRpc.EnginePort=8553
+                        --JsonRpc.AdditionalRpcUrls=http://localhost:8553|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
                         --Network.P2PPort=30305
                         --Network.DiscoveryPort=30305
@@ -167,6 +170,7 @@ services:
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8548
                         --JsonRpc.EnginePort=8554
+                        --JsonRpc.AdditionalRpcUrls=http://localhost:8554|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
                         --Network.P2PPort=30306
                         --Network.DiscoveryPort=30306
@@ -252,6 +256,7 @@ services:
                         --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8549
                         --JsonRpc.EnginePort=8555
+                        --JsonRpc.AdditionalRpcUrls=http://localhost:8555|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
                         --Network.P2PPort=30307
                         --Network.DiscoveryPort=30307
