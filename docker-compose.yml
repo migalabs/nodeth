@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
         nethermind-lh:
-                image: nethermind/nethermind
+                image: nethermind/nethermind:1.14.2
                 container_name: nethermind-lh
                 restart: unless-stopped
                 ports:
@@ -29,7 +29,7 @@ services:
                         - ./data:/tmp/ethereum
         
         lighthouse:
-                image: sigp/lighthouse
+                image: sigp/lighthouse:v3.1.2
                 container_name: lighthouse
                 restart: unless-stopped
                 ports:
@@ -61,7 +61,7 @@ services:
                 depends_on:
                         - nethermind-lh
         nethermind-prysm:
-                image: nethermind/nethermind
+                image: nethermind/nethermind:1.14.2
                 container_name: nethermind-prysm
                 restart: unless-stopped
                 ports:
@@ -87,7 +87,7 @@ services:
                         - ./apps-data/.nethermind-prysm/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         prysm:
-                image: gcr.io/prysmaticlabs/prysm/beacon-chain:stable
+                image: gcr.io/prysmaticlabs/prysm/beacon-chain:v3.1.1
                 container_name: prysm
                 restart: unless-stopped
                 ports:
@@ -107,7 +107,7 @@ services:
                 depends_on:
                         - "nethermind-prysm"
         nethermind-teku:
-                image: nethermind/nethermind
+                image: nethermind/nethermind:1.14.2
                 container_name: nethermind-teku
                 restart: unless-stopped
                 ports:
@@ -133,7 +133,7 @@ services:
                         - ./apps-data/.nethermind-teku/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         teku:
-                image: consensys/teku
+                image: consensys/teku:22.9.1
                 container_name: teku
                 restart: unless-stopped
                 ports:
@@ -158,7 +158,7 @@ services:
                 depends_on:
                         - "nethermind-teku"
         nethermind-nimbus:
-                image: nethermind/nethermind
+                image: nethermind/nethermind:1.14.2
                 container_name: nethermind-nimbus
                 restart: unless-stopped
                 ports:
@@ -215,7 +215,7 @@ services:
                 depends_on:
                         - nethermind-nimbus
         nimbus:
-                image: statusim/nimbus-eth2:amd64-latest
+                image: statusim/nimbus-eth2:amd64-v22.9.1
                 container_name: nimbus
                 restart: unless-stopped
                 ports:
@@ -244,7 +244,7 @@ services:
                 # Check nimbus directory permissions (777)
 
         nethermind-lodestar:
-                image: nethermind/nethermind
+                image: nethermind/nethermind:1.14.2
                 container_name: nethermind-lodestar
                 restart: unless-stopped
                 ports:
@@ -270,7 +270,7 @@ services:
                         - ./apps-data/.nethermind-lodestar/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         lodestar:
-                image: chainsafe/lodestar
+                image: chainsafe/lodestar:v1.1.0
                 container_name: lodestar
                 restart: unless-stopped
                 ports:
