@@ -300,13 +300,33 @@ services:
                 container_name: prometheus
                 volumes:
                         - ./prometheus/:/etc/prometheus/
+                        - ./apps-data/prometheus:/var/lib/prometheus
                 command:
                         - '--config.file=/etc/prometheus/prometheus.yml'
                         - '--storage.tsdb.path=/prometheus'
                         - '--web.console.libraries=/usr/share/prometheus/console_libraries'
                         - '--web.console.templates=/usr/share/prometheus/consoles'
+                        - '--web.listen-address=0.0.0.0:9091'
                 network_mode: 'host'
                 restart: always
+        
+        node_exporter:
+                image: quay.io/prometheus/node-exporter:latest
+                container_name: node_exporter
+                command:
+                  - '--path.rootfs=/host'
+                network_mode: host
+                pid: host
+                restart: unless-stopped
+                volumes:
+                  - ./apps-data/prometheus-node-exporter:/host:ro,rslave
+
+        grafana:
+                build: './grafana'
+                container_name: 'grafana'
+                network_mode: 'host'
+                # volumes:
+                #   - ./apps-data/grafana:/var/lib/grafana
         
         db:
                 image: postgres:14.1-alpine
