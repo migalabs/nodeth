@@ -306,7 +306,7 @@ services:
                         - '--storage.tsdb.path=/prometheus'
                         - '--web.console.libraries=/usr/share/prometheus/console_libraries'
                         - '--web.console.templates=/usr/share/prometheus/consoles'
-                        - '--web.listen-address=0.0.0.0:9091'
+                        - '--web.listen-address=0.0.0.0:9090'
                 network_mode: 'host'
                 restart: always
         
