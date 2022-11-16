@@ -1,0 +1,1 @@
+sudo docker run --network=host -v $PWD/apps-data/.lighthouse:/root/.lighthouse sigp/lighthouse:v3.1.2 lighthouse bn --checkpoint-sync-url="$1"

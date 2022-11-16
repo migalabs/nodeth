@@ -1,0 +1,1 @@
+sudo docker run --network=host -v $PWD/apps-data/.lodestar:/root/.local/share/lodestar chainsafe/lodestar:v1.1.0 beacon --checkpointSyncUrl="$1"

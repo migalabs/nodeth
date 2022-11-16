@@ -1,0 +1,2 @@
+sudo docker run --network=host -v $PWD/apps-data/.teku:/opt/teku/.local/share/teku/ consensys/teku:22.9.1 --initial-state="$1/eth/v2/debug/beacon/states/finalized" --ee-endpoint http://127.0.0.1:8551
+50580
