@@ -23,9 +23,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
-                        - ./apps-data/.nethermind-lh/logs:/nethermind/logs
-                        - ./apps-data/.nethermind-lh/keystore:/nethermind/keystore
+                        - ${LH_DATA_FOLDER}/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
+                        - ${LH_DATA_FOLDER}/.nethermind-lh/logs:/nethermind/logs
+                        - ${LH_DATA_FOLDER}/.nethermind-lh/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         
         lighthouse:
@@ -56,7 +56,7 @@ services:
                         --suggested-fee-recipient=${FEE_RECIPIENT}
 
                 volumes:
-                        - ./apps-data/.lighthouse:/root/.lighthouse
+                        - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
                         - ./data:/tmp/ethereum
                 depends_on:
                         - nethermind-lh
@@ -83,9 +83,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
-                        - ./apps-data/.nethermind-prysm/logs:/nethermind/logs
-                        - ./apps-data/.nethermind-prysm/keystore:/nethermind/keystore
+                        - ${PRYSM_DATA_FOLDER}/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
+                        - ${PRYSM_DATA_FOLDER}/.nethermind-prysm/logs:/nethermind/logs
+                        - ${PRYSM_DATA_FOLDER}/.nethermind-prysm/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         prysm:
                 image: gcr.io/prysmaticlabs/prysm/beacon-chain:v3.1.1
@@ -103,7 +103,7 @@ services:
                         --jwt-secret=/tmp/ethereum/jwtsecret
                         --log-file=/home/.eth2/prysm.log
                 volumes:
-                        - ./apps-data/.prysm:/home/.eth2/
+                        - ${PRYSM_DATA_FOLDER}/.prysm:/home/.eth2/
                         - ./data:/tmp/ethereum
                 depends_on:
                         - "nethermind-prysm"
@@ -129,9 +129,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
-                        - ./apps-data/.nethermind-teku/logs:/nethermind/logs
-                        - ./apps-data/.nethermind-teku/keystore:/nethermind/keystore
+                        - ${TEKU_DATA_FOLDER}/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
+                        - ${TEKU_DATA_FOLDER}/.nethermind-teku/logs:/nethermind/logs
+                        - ${TEKU_DATA_FOLDER}/.nethermind-teku/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         teku:
                 image: consensys/teku:22.9.1
@@ -153,7 +153,7 @@ services:
                         --rest-api-enabled=true
                 
                 volumes:
-                        - ./apps-data/.teku:/opt/teku/.local/share/teku/
+                        - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
                         - ./data:/tmp/ethereum
                 # Check teku host directory permissions as it throws an error(777)
                 depends_on:
@@ -180,9 +180,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
-                        - ./apps-data/.nethermind-nimbus/logs:/nethermind/logs
-                        - ./apps-data/.nethermind-nimbus/keystore:/nethermind/keystore
+                        - ${NIMBUS_DATA_FOLDER}/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
+                        - ${NIMBUS_DATA_FOLDER}/.nethermind-nimbus/logs:/nethermind/logs
+                        - ${NIMBUS_DATA_FOLDER}/.nethermind-nimbus/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         nimbus-sproul:
                 image: nimbus-sproul:latest
@@ -210,7 +210,7 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nimbus-sproul:/app/build/data/shared_mainnet_0/
+                        - ${NIMBUS_DATA_FOLDER}/.nimbus-sproul:/app/build/data/shared_mainnet_0/
                         - ./data:/tmp/ethereum
                 # Check nimbus directory permissions (777)
                 depends_on:
@@ -238,7 +238,7 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nimbus:/home/user/.cache/nimbus
+                        - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus
                         - ./data:/tmp/ethereum
                 depends_on:
                         - nethermind-nimbus
@@ -266,9 +266,9 @@ services:
 
 
                 volumes:
-                        - ./apps-data/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
-                        - ./apps-data/.nethermind-lodestar/logs:/nethermind/logs
-                        - ./apps-data/.nethermind-lodestar/keystore:/nethermind/keystore
+                        - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
+                        - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/logs:/nethermind/logs
+                        - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         lodestar:
                 image: chainsafe/lodestar:v1.2.0
@@ -291,7 +291,7 @@ services:
                         --metrics.port=8010
 
                 volumes:
-                        - ./apps-data/.lodestar:/root/.local/share/lodestar
+                        - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
                         - ./data:/tmp/ethereum
                 depends_on:
                         - "nethermind-lodestar"
