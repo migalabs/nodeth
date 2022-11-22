@@ -60,6 +60,7 @@ services:
                         - ./data:/tmp/ethereum
                 depends_on:
                         - nethermind-lh
+
         nethermind-prysm:
                 image: nethermind/nethermind:1.14.2
                 container_name: nethermind-prysm
@@ -270,7 +271,7 @@ services:
                         - ./apps-data/.nethermind-lodestar/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         lodestar:
-                image: chainsafe/lodestar:v1.1.0
+                image: chainsafe/lodestar:v1.2.0
                 container_name: lodestar
                 restart: unless-stopped
                 ports:
