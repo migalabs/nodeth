@@ -271,7 +271,7 @@ services:
                         - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         lodestar:
-                image: chainsafe/lodestar:v1.2.0
+                image: chainsafe/lodestar:v1.2.1
                 container_name: lodestar
                 restart: unless-stopped
                 ports:
