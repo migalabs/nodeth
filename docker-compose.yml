@@ -80,9 +80,6 @@ services:
                 image: gcr.io/prysmaticlabs/prysm/beacon-chain:v3.1.1
                 container_name: prysm
                 restart: unless-stopped
-                ports:
-                        - 9000:9000
-                        - 3500:3500
                 network_mode: host
                 command: >-
                         --accept-terms-of-use
@@ -122,9 +119,6 @@ services:
                 image: consensys/teku:22.9.1
                 container_name: teku
                 restart: unless-stopped
-                ports:
-                        - 9002:9002
-                        - 5051:5051
                 network_mode: host
                 command: >-
                         --network=${NETWORK}
@@ -172,9 +166,6 @@ services:
                         dockerfile: Dockerfile
                 container_name: nimbus-custom
                 restart: unless-stopped
-                ports:
-                        - 9003:9003
-                        - 5053:5053
                 network_mode: host
                 command: >-
                         --network=${NETWORK}
@@ -200,9 +191,6 @@ services:
                 image: statusim/nimbus-eth2:amd64-v22.9.1
                 container_name: nimbus
                 restart: unless-stopped
-                ports:
-                        - 9003:9003
-                        - 5053:5053
                 network_mode: host
                 command: >-
                         --network=${NETWORK}
@@ -251,9 +239,6 @@ services:
                 image: chainsafe/lodestar:v1.2.1
                 container_name: lodestar
                 restart: unless-stopped
-                ports:
-                        - 9004:9004
-                        - 9596:9596
                 network_mode: host
                 command: >-
                         beacon
