@@ -210,7 +210,7 @@ services:
 
 
                 volumes:
-                        - ${NIMBUS_DATA_FOLDER}/.nimbus-sproul:/app/build/data/shared_mainnet_0/
+                        - ${NIMBUS_DATA_FOLDER}/.nimbus:/app/build/data/shared_mainnet_0/
                         - ./data:/tmp/ethereum
                 # Check nimbus directory permissions (777)
                 depends_on:
@@ -238,7 +238,7 @@ services:
 
 
                 volumes:
-                        - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus
+                        - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
                         - ./data:/tmp/ethereum
                 depends_on:
                         - nethermind-nimbus
