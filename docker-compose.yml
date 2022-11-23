@@ -288,8 +288,8 @@ services:
                 build: './grafana'
                 container_name: 'grafana'
                 network_mode: 'host'
-                # volumes:
-                #   - ./apps-data/grafana:/var/lib/grafana
+                volumes:
+                  - ./apps-data/grafana:/var/lib/grafana
         
         db:
                 image: postgres:14.1-alpine
@@ -314,24 +314,24 @@ services:
                 restart: always
                 volumes: 
                         - ./apps-data/.vouch/data:/app/logs
+                        - ./.vouch/vouch.yml:/app/vouch.yml
         
-        live-metrics:
-                image: live-metrics:latest
+        eth-cl-live-metrics:
+                image: eth-cl-live-metrics:latest
                 build:
-                        context: ./.live_metrics/
+                        context: ./.eth_cl_live_metrics/
                         dockerfile: Dockerfile
-                container_name: live-metrics
-
-                network_mode: 'host'
-                restart: always
-
+                container_name: eth-cl-live-metrics
                 command: >-
-                        $(LIVE_METRICS_CMD)
+                        live-metrics
                         --log-level=${LIVE_METRICS_LOG_LEVEL}
                         --bn-endpoints=${LIVE_METRICS_BN_ENDPOINTS}
                         --db-endpoint=${LIVE_METRICS_DB_ENDPOINT}
                         --db-workers=${LIVE_METRICS_DB_WORKERS}
                         --metrics=${LIVE_METRICS_METRICS}
+                network_mode: 'host'
+                restart: unless-stopped
+                
 
                 
 
