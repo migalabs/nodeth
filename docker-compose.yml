@@ -184,12 +184,12 @@ services:
                         - ${NIMBUS_DATA_FOLDER}/.nethermind-nimbus/logs:/nethermind/logs
                         - ${NIMBUS_DATA_FOLDER}/.nethermind-nimbus/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
-        nimbus-sproul:
-                image: nimbus-sproul:latest
+        nimbus-custom:
+                image: nimbus-custom:latest
                 build:
                         context: ./.nimbus/
                         dockerfile: Dockerfile
-                container_name: nimbus-sproul
+                container_name: nimbus-custom
                 restart: unless-stopped
                 ports:
                         - 9003:9003
