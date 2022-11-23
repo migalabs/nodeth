@@ -5,13 +5,9 @@ services:
                 image: nethermind/nethermind:1.14.2
                 container_name: nethermind-lh
                 restart: unless-stopped
-                ports:
-                        - 8545:8545
-                        - 30303:30303
                 network_mode: host
                 command: >-
                         --config=${NETWORK}
-                        --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8545
                         --JsonRpc.EnginePort=8551
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8551|http;wss|engine;eth;net;subscribe
@@ -32,9 +28,6 @@ services:
                 image: sigp/lighthouse:v3.1.2
                 container_name: lighthouse
                 restart: unless-stopped
-                ports:
-                        - 9001:9001
-                        - 5052:5052
                 network_mode: host
                 command: >-
                         lighthouse
@@ -65,13 +58,9 @@ services:
                 image: nethermind/nethermind:1.14.2
                 container_name: nethermind-prysm
                 restart: unless-stopped
-                ports:
-                        - 8546:8546
-                        - 30304:30304
                 network_mode: host
                 command: >-
                         --config=${NETWORK}
-                        --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8546
                         --JsonRpc.EnginePort=8552
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8552|http;wss|engine;eth;net;subscribe
@@ -111,13 +100,9 @@ services:
                 image: nethermind/nethermind:1.14.2
                 container_name: nethermind-teku
                 restart: unless-stopped
-                ports:
-                        - 8547:8547
-                        - 30305:30305
                 network_mode: host
                 command: >-
                         --config=${NETWORK}
-                        --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8547
                         --JsonRpc.EnginePort=8553
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8553|http;wss|engine;eth;net;subscribe
@@ -162,13 +147,9 @@ services:
                 image: nethermind/nethermind:1.14.2
                 container_name: nethermind-nimbus
                 restart: unless-stopped
-                ports:
-                        - 8548:8548
-                        - 30306:30306
                 network_mode: host
                 command: >-
                         --config=${NETWORK}
-                        --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8548
                         --JsonRpc.EnginePort=8554
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8554|http;wss|engine;eth;net;subscribe
@@ -248,13 +229,9 @@ services:
                 image: nethermind/nethermind:1.14.2
                 container_name: nethermind-lodestar
                 restart: unless-stopped
-                ports:
-                        - 8549:8549
-                        - 30307:30307
                 network_mode: host
                 command: >-
                         --config=${NETWORK}
-                        --JsonRpc.Host=0.0.0.0
                         --JsonRpc.Port=8549
                         --JsonRpc.EnginePort=8555
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8555|http;wss|engine;eth;net;subscribe
@@ -352,6 +329,24 @@ services:
                 restart: always
                 volumes: 
                         - ./apps-data/.vouch/data:/app/logs
+        
+        live-metrics:
+                image: live-metrics:latest
+                build:
+                        context: ./.live_metrics/
+                        dockerfile: Dockerfile
+                container_name: live-metrics
+
+                network_mode: 'host'
+                restart: always
+
+                command: >-
+                        $(LIVE_METRICS_CMD)
+                        --log-level=${LIVE_METRICS_LOG_LEVEL}
+                        --bn-endpoints=${LIVE_METRICS_BN_ENDPOINTS}
+                        --db-endpoint=${LIVE_METRICS_DB_ENDPOINT}
+                        --db-workers=${LIVE_METRICS_DB_WORKERS}
+                        --metrics=${LIVE_METRICS_METRICS}
 
                 
 
