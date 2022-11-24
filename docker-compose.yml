@@ -263,7 +263,7 @@ services:
                 container_name: prometheus
                 volumes:
                         - ./prometheus/:/etc/prometheus/
-                        - ./apps-data/prometheus:/var/lib/prometheus
+                        - ./apps-data/.prometheus:/var/lib/prometheus
                 command:
                         - '--config.file=/etc/prometheus/prometheus.yml'
                         - '--storage.tsdb.path=/prometheus'
