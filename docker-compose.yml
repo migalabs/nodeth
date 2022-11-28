@@ -16,6 +16,7 @@ services:
                         --Network.DiscoveryPort=30303
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
+                        --Metrics.Enabled true
 
 
                 volumes:
@@ -69,6 +70,7 @@ services:
                         --Network.DiscoveryPort=30304
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
+                        --Metrics.Enabled true
 
 
                 volumes:
@@ -108,6 +110,7 @@ services:
                         --Network.DiscoveryPort=30305
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
+                        --Metrics.Enabled true
 
 
                 volumes:
@@ -152,6 +155,7 @@ services:
                         --Network.DiscoveryPort=30306
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
+                        --Metrics.Enabled true
 
 
                 volumes:
@@ -228,6 +232,7 @@ services:
                         --Network.DiscoveryPort=30307
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
+                        --Metrics.Enabled true
 
 
                 volumes:
@@ -272,6 +277,14 @@ services:
                         - '--web.listen-address=0.0.0.0:9090'
                 network_mode: 'host'
                 restart: always
+        
+        pushgateway:
+                image: prom/pushgateway
+                container_name: pushgateway
+                restart: unless-stopped
+                network_mode: 'host'
+                labels:
+                  org.label-schema.group: "monitoring"
         
         node_exporter:
                 image: quay.io/prometheus/node-exporter:latest
