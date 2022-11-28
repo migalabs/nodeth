@@ -16,7 +16,7 @@ services:
                         --Network.DiscoveryPort=30303
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled true
+                        --Metrics.Enabled=true
 
 
                 volumes:
@@ -70,7 +70,7 @@ services:
                         --Network.DiscoveryPort=30304
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled true
+                        --Metrics.Enabled=true
 
 
                 volumes:
@@ -110,7 +110,7 @@ services:
                         --Network.DiscoveryPort=30305
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled true
+                        --Metrics.Enabled=true
 
 
                 volumes:
@@ -155,7 +155,7 @@ services:
                         --Network.DiscoveryPort=30306
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled true
+                        --Metrics.Enabled=true
 
 
                 volumes:
@@ -232,7 +232,7 @@ services:
                         --Network.DiscoveryPort=30307
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled true
+                        --Metrics.Enabled=true
 
 
                 volumes:
