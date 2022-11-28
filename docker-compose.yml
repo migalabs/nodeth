@@ -17,6 +17,7 @@ services:
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
                         --Metrics.Enabled=true
+                        --Metrics.ExposePort=8645
 
 
                 volumes:
@@ -71,6 +72,7 @@ services:
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
                         --Metrics.Enabled=true
+                        --Metrics.ExposePort=8646
 
 
                 volumes:
@@ -111,6 +113,7 @@ services:
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
                         --Metrics.Enabled=true
+                        --Metrics.ExposePort=8647
 
 
                 volumes:
@@ -156,6 +159,7 @@ services:
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
                         --Metrics.Enabled=true
+                        --Metrics.ExposePort=8648
 
 
                 volumes:
@@ -233,6 +237,7 @@ services:
                         --HealthChecks.Enabled=true 
                         --HealthChecks.UIEnabled=true
                         --Metrics.Enabled=true
+                        --Metrics.ExposePort=8649
 
 
                 volumes:
