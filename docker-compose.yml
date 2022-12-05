@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
         nethermind-lh:
-                image: nethermind/nethermind:1.14.2
+                image: nethermind/nethermind:${NETHERMIND_VERSION}
                 container_name: nethermind-lh
                 restart: unless-stopped
                 network_mode: host
@@ -57,7 +57,7 @@ services:
                         - nethermind-lh
 
         nethermind-prysm:
-                image: nethermind/nethermind:1.14.2
+                image: nethermind/nethermind:${NETHERMIND_VERSION}
                 container_name: nethermind-prysm
                 restart: unless-stopped
                 network_mode: host
@@ -98,7 +98,7 @@ services:
                 depends_on:
                         - "nethermind-prysm"
         nethermind-teku:
-                image: nethermind/nethermind:1.14.2
+                image: nethermind/nethermind:${NETHERMIND_VERSION}
                 container_name: nethermind-teku
                 restart: unless-stopped
                 network_mode: host
@@ -144,7 +144,7 @@ services:
                 depends_on:
                         - "nethermind-teku"
         nethermind-nimbus:
-                image: nethermind/nethermind:1.14.2
+                image: nethermind/nethermind:${NETHERMIND_VERSION}
                 container_name: nethermind-nimbus
                 restart: unless-stopped
                 network_mode: host
@@ -222,7 +222,7 @@ services:
                 # Check nimbus directory permissions (777)
 
         nethermind-lodestar:
-                image: nethermind/nethermind:1.14.2
+                image: nethermind/nethermind:${NETHERMIND_VERSION}
                 container_name: nethermind-lodestar
                 restart: unless-stopped
                 network_mode: host
