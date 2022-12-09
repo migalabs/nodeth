@@ -91,3 +91,7 @@ scrape_configs:
   - job_name: 'vouch'
     static_configs:
       - targets: ['localhost:8081']
+
+  - job_name: 'eth-cl-live-metrics'
+    static_configs:
+      - targets: ['localhost:9080']
