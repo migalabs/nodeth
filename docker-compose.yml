@@ -13,6 +13,8 @@ services:
                         --JsonRpc.EnginePort=8551
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8551|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --JsonRpc.Enabled=true
+                        --JsonRpc.EnabledModules=Admin
                         --Network.P2PPort=30303
                         --Network.DiscoveryPort=30303
                         --HealthChecks.Enabled=true 
@@ -70,6 +72,8 @@ services:
                         --JsonRpc.EnginePort=8552
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8552|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --JsonRpc.Enabled=true
+                        --JsonRpc.EnabledModules=Admin
                         --Network.P2PPort=30304
                         --Network.DiscoveryPort=30304
                         --HealthChecks.Enabled=true 
@@ -113,6 +117,8 @@ services:
                         --JsonRpc.EnginePort=8553
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8553|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --JsonRpc.Enabled=true
+                        --JsonRpc.EnabledModules=Admin
                         --Network.P2PPort=30305
                         --Network.DiscoveryPort=30305
                         --HealthChecks.Enabled=true 
@@ -161,6 +167,8 @@ services:
                         --JsonRpc.EnginePort=8554
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8554|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --JsonRpc.Enabled=true
+                        --JsonRpc.EnabledModules=Admin
                         --Network.P2PPort=30306
                         --Network.DiscoveryPort=30306
                         --HealthChecks.Enabled=true 
@@ -242,6 +250,8 @@ services:
                         --JsonRpc.EnginePort=8555
                         --JsonRpc.AdditionalRpcUrls=http://localhost:8555|http;wss|engine;eth;net;subscribe
                         --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+                        --JsonRpc.Enabled=true
+                        --JsonRpc.EnabledModules=Admin
                         --Network.P2PPort=30307
                         --Network.DiscoveryPort=30307
                         --HealthChecks.Enabled=true 
