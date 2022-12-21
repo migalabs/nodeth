@@ -6,6 +6,7 @@ ENV NIM_VERSION 0.14.2
 RUN apt-get update && apt-get -y install build-essential git cmake
 
 RUN git clone -b unstable https://github.com/status-im/nimbus-eth2.git /app
+RUN git checkout ad7541
 WORKDIR /app
 RUN git checkout ad7541567c8ca39387dc23fcde97cdc8601b041b
 RUN git submodule update --init --recursive
