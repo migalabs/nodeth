@@ -1,2 +1,2 @@
 export $(grep -v '^#' .env | xargs)
-sudo docker run --network=host -v ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar chainsafe/lodestar:v1.2.1 beacon --checkpointSyncUrl="$1"
+sudo docker run --network=host -v ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar chainsafe/lodestar:${LODESTAR_TAG} beacon --network=${NETWORK} --checkpointSyncUrl="$1"

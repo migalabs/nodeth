@@ -1,4 +1,4 @@
 export $(grep -v '^#' .env | xargs)
-sudo docker run --network=host -v ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/ statusim/nimbus-eth2:amd64-v22.9.1 trustedNodeSync \
-  --network:mainnet \
+sudo docker run --network=host -v ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode statusim/nimbus-eth2:${NIMBUS_TAG} trustedNodeSync \
+  --network:${NETWORK} \
   --trusted-node-url="$1"
