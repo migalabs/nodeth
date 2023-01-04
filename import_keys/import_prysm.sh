@@ -1,5 +1,5 @@
 export $(grep -v '^#' .env | xargs)
-sudo docker run -it \
+sudo docker run --rm -it \
 	-v ${VALIDATOR_KEYS_FOLDER}/prysm:/validators \
 	-v ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet \
 	gcr.io/prysmaticlabs/prysm/validator:${PRYSM_TAG} \

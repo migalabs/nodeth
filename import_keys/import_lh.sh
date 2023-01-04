@@ -1,5 +1,5 @@
 export $(grep -v '^#' .env | xargs)
-sudo docker run -it \
+sudo docker run --rm -it \
     -v ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse \
     -v ${VALIDATOR_KEYS_FOLDER}/lighthouse/:/root/validator_keys \
     sigp/lighthouse:${LIGHTHOUSE_TAG} \

@@ -1,2 +1,2 @@
 export $(grep -v '^#' .env | xargs)
-sudo docker run --network=host -v ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/ consensys/teku:${TEKU_TAG} --network=${NETWORK} --initial-state="$1/eth/v2/debug/beacon/states/finalized" --ee-endpoint http://127.0.0.1:8551
+sudo docker run --rm --network=host -v ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/ consensys/teku:${TEKU_TAG} --network=${NETWORK} --initial-state="$1/eth/v2/debug/beacon/states/finalized" --ee-endpoint http://127.0.0.1:8551
