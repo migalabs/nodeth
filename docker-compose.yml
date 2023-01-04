@@ -3,7 +3,7 @@ version: '3.7'
 services:
         nethermind-lh:
                 image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-lh
+                container_name: nethermind-lh-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -30,8 +30,8 @@ services:
                         - ./data:/tmp/ethereum
         
         lighthouse:
-                image: sigp/lighthouse:v3.1.2
-                container_name: lighthouse
+                image: sigp/lighthouse:${LIGHTHOUSE_TAG}
+                container_name: lighthouse-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -57,12 +57,31 @@ services:
                 volumes:
                         - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
                         - ./data:/tmp/ethereum
+        
+        lighthouse-val:
+                image: sigp/lighthouse:${LIGHTHOUSE_TAG}
+                container_name: lighthouse-val-${NETWORK}
+                restart: unless-stopped
+                init: true
+                network_mode: host
+                command: >-
+                        lighthouse
+                        --spec=mainnet
+                        --network=${NETWORK}
+                        --debug-level=info
+                        --logfile-debug-level=info
+                        --logfile=/root/.lighthouse/lighthouse-val.log
+                        vc
+                        --suggested-fee-recipient=${FEE_RECIPIENT}
+
+                volumes:
+                        - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
                 depends_on:
-                        - nethermind-lh
+                        - lighthouse
 
         nethermind-prysm:
                 image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-prysm
+                container_name: nethermind-prysm-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -88,8 +107,8 @@ services:
                         - ${PRYSM_DATA_FOLDER}/.nethermind-prysm/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         prysm:
-                image: gcr.io/prysmaticlabs/prysm/beacon-chain:v3.1.1
-                container_name: prysm
+                image: gcr.io/prysmaticlabs/prysm/beacon-chain:${PRYSM_TAG}
+                container_name: prysm-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -103,11 +122,31 @@ services:
                 volumes:
                         - ${PRYSM_DATA_FOLDER}/.prysm:/home/.eth2/
                         - ./data:/tmp/ethereum
+        
+        prysm-val:
+                image: gcr.io/prysmaticlabs/prysm/validator:${PRYSM_TAG}
+                container_name: prysm-val-${NETWORK}
+                restart: unless-stopped
+                init: true
+                network_mode: host
+                command: >-
+                        --accept-terms-of-use
+                        --${NETWORK}
+                        --beacon-rpc-provider=localhost:4000
+                        --wallet-dir=/wallet 
+                        --datadir=/validatorDB
+                        --wallet-password-file=/secret.txt
+                        --suggested-fee-recipient=${FEE_RECIPIENT}
+                volumes:
+                        - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
+                        - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
+                        - ${PRYSM_DATA_FOLDER}/.prysm-val/db:/validatorDB
                 depends_on:
-                        - "nethermind-prysm"
+                        - "prysm"
+        
         nethermind-teku:
                 image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-teku
+                container_name: nethermind-teku-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -133,8 +172,8 @@ services:
                         - ${TEKU_DATA_FOLDER}/.nethermind-teku/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         teku:
-                image: consensys/teku:22.9.1
-                container_name: teku
+                image: consensys/teku:${TEKU_TAG}
+                container_name: teku-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -153,11 +192,30 @@ services:
                         - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
                         - ./data:/tmp/ethereum
                 # Check teku host directory permissions as it throws an error(777)
+        
+        teku-val:
+                image: consensys/teku:${TEKU_TAG}
+                container_name: teku-val-${NETWORK}
+                restart: unless-stopped
+                init: true
+                network_mode: host
+                command: >-
+                        validator-client
+                        --network=${NETWORK}
+                        --beacon-node-api-endpoint=http://localhost:5051
+                        --validator-keys=/validator/keys:/validator/passwords
+                        --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
+                
+                volumes:
+                        - ${TEKU_DATA_FOLDER}/.teku-val:/validator
+                        - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
+                # Check teku host directory permissions as it throws an error(777)
                 depends_on:
-                        - "nethermind-teku"
+                        - "teku"
+
         nethermind-nimbus:
                 image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-nimbus
+                container_name: nethermind-nimbus-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -187,7 +245,7 @@ services:
                 build:
                         context: ./.nimbus/
                         dockerfile: Dockerfile
-                container_name: nimbus-custom
+                container_name: nimbus-custom-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -203,17 +261,16 @@ services:
                         --rest-port=5053
                         --metrics-port=8009
                         --log-file=/app/build/data/shared_mainnet_0/nimbus.log
+                        --suggested-fee-recipient=${FEE_RECIPIENT}
 
 
                 volumes:
                         - ${NIMBUS_DATA_FOLDER}/.nimbus:/app/build/data/shared_mainnet_0/
                         - ./data:/tmp/ethereum
-                # Check nimbus directory permissions (777)
-                depends_on:
-                        - nethermind-nimbus
+                # Check nimbus directory permissions (700)
         nimbus:
-                image: statusim/nimbus-eth2:amd64-v22.9.1
-                container_name: nimbus
+                image: statusim/nimbus-eth2:${NIMBUS_TAG}
+                container_name: nimbus-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -228,19 +285,17 @@ services:
                         --udp-port=9003
                         --rest-port=5053
                         --metrics-port=8009
-                        --log-file=/home/user/.cache/nimbus/nimbus.log
+                        --log-file=/home/user/.cache/nimbus/BeaconNode/nimbus.log
+                        --suggested-fee-recipient=${FEE_RECIPIENT}
 
 
                 volumes:
                         - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
                         - ./data:/tmp/ethereum
-                depends_on:
-                        - nethermind-nimbus
-                # Check nimbus directory permissions (777)
 
         nethermind-lodestar:
                 image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-lodestar
+                container_name: nethermind-lodestar-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -266,8 +321,8 @@ services:
                         - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         lodestar:
-                image: chainsafe/lodestar:v1.2.1
-                container_name: lodestar
+                image: chainsafe/lodestar:${LODESTAR:TAG}
+                container_name: lodestar-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
@@ -286,8 +341,26 @@ services:
                 volumes:
                         - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
                         - ./data:/tmp/ethereum
+        
+        lodestar-val:
+                image: chainsafe/lodestar:${LODESTAR_TAG}
+                container_name: lodestar-val
+                restart: unless-stopped
+                init: true
+                network_mode: host
+                command: >-
+                        validator
+                        --network=${NETWORK}
+                        --keystore=/validator/keys
+                        --passphraseFile=/validator/secret.txt
+                        --suggestedFeeRecipient=${FEE_RECIPIENT}
+
+                volumes:
+                        - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
+                        - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
+                        - ./data:/tmp/ethereum
                 depends_on:
-                        - "nethermind-lodestar"
+                        - "lodestar"
         
         prometheus:
                 image: prom/prometheus:v2.36.2
