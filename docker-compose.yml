@@ -321,7 +321,7 @@ services:
                         - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         lodestar:
-                image: chainsafe/lodestar:${LODESTAR:TAG}
+                image: chainsafe/lodestar:${LODESTAR_TAG}
                 container_name: lodestar-${NETWORK}
                 restart: unless-stopped
                 init: true
