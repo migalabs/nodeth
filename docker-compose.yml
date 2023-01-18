@@ -24,9 +24,9 @@ services:
 
 
                 volumes:
-                        - ${LH_DATA_FOLDER}/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
-                        - ${LH_DATA_FOLDER}/.nethermind-lh/logs:/nethermind/logs
-                        - ${LH_DATA_FOLDER}/.nethermind-lh/keystore:/nethermind/keystore
+                        - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
+                        - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/logs:/nethermind/logs
+                        - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         
         lighthouse:
@@ -102,9 +102,9 @@ services:
 
 
                 volumes:
-                        - ${PRYSM_DATA_FOLDER}/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
-                        - ${PRYSM_DATA_FOLDER}/.nethermind-prysm/logs:/nethermind/logs
-                        - ${PRYSM_DATA_FOLDER}/.nethermind-prysm/keystore:/nethermind/keystore
+                        - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
+                        - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/logs:/nethermind/logs
+                        - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         prysm:
                 image: gcr.io/prysmaticlabs/prysm/beacon-chain:${PRYSM_TAG}
@@ -167,9 +167,9 @@ services:
 
 
                 volumes:
-                        - ${TEKU_DATA_FOLDER}/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
-                        - ${TEKU_DATA_FOLDER}/.nethermind-teku/logs:/nethermind/logs
-                        - ${TEKU_DATA_FOLDER}/.nethermind-teku/keystore:/nethermind/keystore
+                        - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
+                        - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/logs:/nethermind/logs
+                        - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         teku:
                 image: consensys/teku:${TEKU_TAG}
@@ -236,9 +236,9 @@ services:
 
 
                 volumes:
-                        - ${NIMBUS_DATA_FOLDER}/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
-                        - ${NIMBUS_DATA_FOLDER}/.nethermind-nimbus/logs:/nethermind/logs
-                        - ${NIMBUS_DATA_FOLDER}/.nethermind-nimbus/keystore:/nethermind/keystore
+                        - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
+                        - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/logs:/nethermind/logs
+                        - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         nimbus-custom:
                 image: nimbus-custom:latest
@@ -316,9 +316,9 @@ services:
 
 
                 volumes:
-                        - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
-                        - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/logs:/nethermind/logs
-                        - ${LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
+                        - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
+                        - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/logs:/nethermind/logs
+                        - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
                         - ./data:/tmp/ethereum
         lodestar:
                 image: chainsafe/lodestar:${LODESTAR_TAG}
