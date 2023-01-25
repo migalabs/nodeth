@@ -137,12 +137,12 @@ services:
                         --datadir=/validatorDB
                         --wallet-password-file=/secret.txt
                         --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --log-file=/prysm-val.log
+                        --log-file=/prysm-log/prysm-val.log
                 volumes:
                         - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/db:/validatorDB
-                        - ${PRYSM_DATA_FOLDER}/.prysm/prysm-val.log:/prysm-val.log
+                        - ${PRYSM_DATA_FOLDER}/.prysm-val/log/:/prysm-log
                 depends_on:
                         - "prysm"
         
