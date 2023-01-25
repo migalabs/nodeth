@@ -72,6 +72,8 @@ services:
                         --logfile-debug-level=info
                         --logfile=/root/.lighthouse/lighthouse-val.log
                         vc
+                        --http
+                        --metrics
                         --suggested-fee-recipient=${FEE_RECIPIENT}
 
                 volumes:
