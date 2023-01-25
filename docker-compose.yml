@@ -142,7 +142,7 @@ services:
                         - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/db:/validatorDB
-                        - ${PRYSM_DATA_FOLDER}/prysm-val.log:/prysm-val.log
+                        - ${PRYSM_DATA_FOLDER}/.prysm/prysm-val.log:/prysm-val.log
                 depends_on:
                         - "prysm"
         
