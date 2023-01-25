@@ -72,6 +72,7 @@ services:
                         --logfile-debug-level=info
                         --logfile=/root/.lighthouse/lighthouse-val.log
                         vc
+                        --enable-doppelganger-protection
                         --http
                         --metrics
                         --suggested-fee-recipient=${FEE_RECIPIENT}
@@ -140,6 +141,7 @@ services:
                         --wallet-password-file=/secret.txt
                         --suggested-fee-recipient=${FEE_RECIPIENT}
                         --log-file=/prysm-log/prysm-val.log
+                        --enable-doppelganger
                 volumes:
                         - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
@@ -191,6 +193,7 @@ services:
                         --log-file=/opt/teku/.local/share/teku/teku.log
                         --metrics-enabled=true
                         --rest-api-enabled=true
+                        --Xbeacon-liveness-tracking-enabled=true
                 
                 volumes:
                         - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
@@ -209,6 +212,7 @@ services:
                         --beacon-node-api-endpoint=http://localhost:5051
                         --validator-keys=/validator/keys:/validator/passwords
                         --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
+                        --Xdoppelganger-detection-enabled=true
                 
                 volumes:
                         - ${TEKU_DATA_FOLDER}/.teku-val:/validator
@@ -272,6 +276,7 @@ services:
                         - ${NIMBUS_DATA_FOLDER}/.nimbus:/app/build/data/shared_mainnet_0/
                         - ./data:/tmp/ethereum
                 # Check nimbus directory permissions (700)
+                # Nimbus automatically activates doppelganger detection
         nimbus:
                 image: statusim/nimbus-eth2:${NIMBUS_TAG}
                 container_name: nimbus-${NETWORK}
@@ -358,6 +363,7 @@ services:
                         --keystore=/validator/keys
                         --passphraseFile=/validator/secret.txt
                         --suggestedFeeRecipient=${FEE_RECIPIENT}
+                        --doppelgangerProtectionEnabled=true
 
                 volumes:
                         - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
