@@ -137,6 +137,7 @@ services:
                         --datadir=/validatorDB
                         --wallet-password-file=/secret.txt
                         --suggested-fee-recipient=${FEE_RECIPIENT}
+                        --log-file=/home/.eth2/prysm-val.log
                 volumes:
                         - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
