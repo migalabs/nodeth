@@ -52,6 +52,10 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:8080']
   
+  - job_name: 'prysm-val'
+    static_configs:
+      - targets: ['localhost:8081']
+  
   - job_name: 'nethermind-prysm'
     static_configs:
       - targets: ['localhost:8646']
@@ -60,6 +64,10 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:5054']
 
+  - job_name: 'lighthouse-val'
+    static_configs:
+      - targets: ['localhost:5064']
+
   - job_name: 'nethermind-lh'
     static_configs:
       - targets: ['localhost:8645']
@@ -67,6 +75,10 @@ scrape_configs:
   - job_name: 'teku'
     static_configs:
       - targets: ['localhost:8008']
+
+  - job_name: 'teku-val'
+    static_configs:
+      - targets: ['localhost:5065']
 
   - job_name: 'nethermind-teku'
     static_configs:
@@ -83,6 +95,10 @@ scrape_configs:
   - job_name: 'lodestar'
     static_configs:
       - targets: ['localhost:8010']
+
+  - job_name: 'lodestar-val'
+    static_configs:
+      - targets: ['localhost:5067']
 
   - job_name: 'nethermind-lodestar'
     static_configs:
