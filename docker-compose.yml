@@ -218,6 +218,8 @@ services:
                         --metrics-enabled=true
                         --metrics-port=5065
                         --validators-graffiti="Teku"
+                        --log-destination=BOTH
+                        --log-file=/opt/teku/.local/share/teku/teku-val.log
                 
                 volumes:
                         - ${TEKU_DATA_FOLDER}/.teku-val:/validator
@@ -375,6 +377,7 @@ services:
                         --metrics=true
                         --metrics.port=5067
                         --graffiti="Lodestar"
+                        --logFile=/root/.local/share/lodestar/lodestar-val.log
 
                 volumes:
                         - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
