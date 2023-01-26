@@ -356,7 +356,7 @@ services:
         
         lodestar-val:
                 image: chainsafe/lodestar:${LODESTAR_TAG}
-                container_name: lodestar-val
+                container_name: lodestar-val-${NETWORK}
                 restart: unless-stopped
                 init: true
                 network_mode: host
