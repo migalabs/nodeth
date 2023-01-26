@@ -72,10 +72,11 @@ services:
                         --logfile-debug-level=info
                         --logfile=/root/.lighthouse/lighthouse-val.log
                         vc
-                        --enable-doppelganger-protection
+                        --enable-doppelganger-protection=true
                         --http
                         --metrics
                         --suggested-fee-recipient=${FEE_RECIPIENT}
+                        --graffiti="Lighthouse"
 
                 volumes:
                         - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
@@ -141,7 +142,8 @@ services:
                         --wallet-password-file=/secret.txt
                         --suggested-fee-recipient=${FEE_RECIPIENT}
                         --log-file=/prysm-log/prysm-val.log
-                        --enable-doppelganger
+                        --enable-doppelganger=true
+                        --graffiti="Prysm"
                 volumes:
                         - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
@@ -215,6 +217,7 @@ services:
                         --Xdoppelganger-detection-enabled=true
                         --metrics-enabled=true
                         --metrics-port=5065
+                        --validators-graffiti="Teku"
                 
                 volumes:
                         - ${TEKU_DATA_FOLDER}/.teku-val:/validator
@@ -273,6 +276,7 @@ services:
                         --metrics-port=8009
                         --log-file=/app/build/data/shared_mainnet_0/nimbus.log
                         --suggested-fee-recipient=${FEE_RECIPIENT}
+                        --graffiti="Nimbus"
 
 
                 volumes:
@@ -370,6 +374,7 @@ services:
                         --doppelgangerProtectionEnabled=true
                         --metrics=true
                         --metrics.port=5067
+                        --graffiti="Lodestar"
 
                 volumes:
                         - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
