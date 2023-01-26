@@ -214,7 +214,6 @@ services:
                         --beacon-node-api-endpoint=http://localhost:5051
                         --validator-keys=/validator/keys:/validator/passwords
                         --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
-                        --Xdoppelganger-detection-enabled=true
                         --metrics-enabled=true
                         --metrics-port=5065
                         --validators-graffiti="Teku"
