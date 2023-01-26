@@ -213,11 +213,14 @@ services:
                         --validator-keys=/validator/keys:/validator/passwords
                         --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
                         --Xdoppelganger-detection-enabled=true
+                        --metrics-enabled=true
+                        --metrics-port=5065
                 
                 volumes:
                         - ${TEKU_DATA_FOLDER}/.teku-val:/validator
                         - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
                 # Check teku host directory permissions as it throws an error(777)
+                # Metrics on 8008
                 depends_on:
                         - "teku"
 
@@ -277,6 +280,7 @@ services:
                         - ./data:/tmp/ethereum
                 # Check nimbus directory permissions (700)
                 # Nimbus automatically activates doppelganger detection
+                # Possibly prometheus metrics come together
         nimbus:
                 image: statusim/nimbus-eth2:${NIMBUS_TAG}
                 container_name: nimbus-${NETWORK}
@@ -364,6 +368,8 @@ services:
                         --passphraseFile=/validator/secret.txt
                         --suggestedFeeRecipient=${FEE_RECIPIENT}
                         --doppelgangerProtectionEnabled=true
+                        --metrics=true
+                        --metrics.port=5067
 
                 volumes:
                         - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
