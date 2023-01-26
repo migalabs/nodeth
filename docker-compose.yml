@@ -80,8 +80,6 @@ services:
 
                 volumes:
                         - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
-                depends_on:
-                        - lighthouse
 
         nethermind-prysm:
                 image: nethermind/nethermind:${NETHERMIND_VERSION}
@@ -149,8 +147,6 @@ services:
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/db:/validatorDB
                         - ${PRYSM_DATA_FOLDER}/.prysm-val/log/:/prysm-log
-                depends_on:
-                        - "prysm"
         
         nethermind-teku:
                 image: nethermind/nethermind:${NETHERMIND_VERSION}
@@ -225,8 +221,6 @@ services:
                         - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
                 # Check teku host directory permissions as it throws an error(777)
                 # Metrics on 8008
-                depends_on:
-                        - "teku"
 
         nethermind-nimbus:
                 image: nethermind/nethermind:${NETHERMIND_VERSION}
@@ -382,8 +376,6 @@ services:
                         - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
                         - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
                         - ./data:/tmp/ethereum
-                depends_on:
-                        - "lodestar"
         
         prometheus:
                 image: prom/prometheus:v2.36.2
