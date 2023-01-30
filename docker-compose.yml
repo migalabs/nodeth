@@ -506,7 +506,7 @@ services:
                         --pool-name=/custom_pools/singapore-nimbus.txt
                         --pool-name=/custom_pools/singapore-lodestar.txt
                 volumes:
-                        - /home/tarun/github_projects/staking-deposit-cli/out_pools/:/custom_pools/
+                        - ${POOL_METRICS_PUBKEYS_FOLDER}:/custom_pools/
                 
                 
 
