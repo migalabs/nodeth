@@ -466,7 +466,47 @@ services:
                 network_mode: 'host'
                 restart: unless-stopped
                 
-
+        pool-metrics:
+                image: alrevuelta/eth-metrics:0.1.4
+                container_name: eth-pool-metrics-${NETWORK}
+                init: true
+                network_mode: 'host'
+                command: >-
+                        --from-address=0xa111B576408B1CcDacA3eF26f22f082C49bcaa55
+                        --eth1address=${POOL_METRICS_EL_ENDPOINT}
+                        --eth2address=${POOL_METRICS_CL_ENDPOINT}
+                        --pool-name=/custom_pools/frankfurt-lighthouse.txt
+                        --pool-name=/custom_pools/frankfurt-prysm.txt 
+                        --pool-name=/custom_pools/frankfurt-teku.txt
+                        --pool-name=/custom_pools/frankfurt-nimbus.txt
+                        --pool-name=/custom_pools/frankfurt-lodestar.txt
+                        --pool-name=/custom_pools/london-lighthouse.txt
+                        --pool-name=/custom_pools/london-prysm.txt 
+                        --pool-name=/custom_pools/london-teku.txt
+                        --pool-name=/custom_pools/london-nimbus.txt
+                        --pool-name=/custom_pools/london-lodestar.txt
+                        --pool-name=/custom_pools/warsaw-lighthouse.txt
+                        --pool-name=/custom_pools/warsaw-prysm.txt 
+                        --pool-name=/custom_pools/warsaw-teku.txt
+                        --pool-name=/custom_pools/warsaw-nimbus.txt
+                        --pool-name=/custom_pools/warsaw-lodestar.txt
+                        --pool-name=/custom_pools/sydney-lighthouse.txt
+                        --pool-name=/custom_pools/sydney-prysm.txt 
+                        --pool-name=/custom_pools/sydney-teku.txt
+                        --pool-name=/custom_pools/sydney-nimbus.txt
+                        --pool-name=/custom_pools/sydney-lodestar.txt
+                        --pool-name=/custom_pools/toronto-lighthouse.txt
+                        --pool-name=/custom_pools/toronto-prysm.txt 
+                        --pool-name=/custom_pools/toronto-teku.txt
+                        --pool-name=/custom_pools/toronto-nimbus.txt
+                        --pool-name=/custom_pools/toronto-lodestar.txt
+                        --pool-name=/custom_pools/singapore-lighthouse.txt
+                        --pool-name=/custom_pools/singapore-prysm.txt 
+                        --pool-name=/custom_pools/singapore-teku.txt
+                        --pool-name=/custom_pools/singapore-nimbus.txt
+                        --pool-name=/custom_pools/singapore-lodestar.txt
+                volumes:
+                        - ${POOL_METRICS_PUBKEYS_FOLDER}:/custom_pools/
                 
 
         
