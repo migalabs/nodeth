@@ -31,6 +31,10 @@ If not created, the Nethermind client will automatically create it.
 
 # Execution
 
+Please bear in mind folder permissions are very important, specially with Nimbus and Teku.
+Regarding Nimbus it is important that the owner of the data folder is the same as the one executing the docker container.
+As for Teku, ownership is also important, but permissions must be ensured so the container user can access the volume.
+
 ## Checkpoint Sync
 
 You may start by checkpoint syncing your CL client.\
@@ -39,6 +43,59 @@ You can do this by executing:
 ```
 ./checkpoint_sync/chk_<client>.sh <https://remote_node:port>
 ```
+
+Yoy may only run this for a few minutes until the client has downloaded the latest checkpoint, after that you can stop with Ctrl+C.
+
+## Import keys
+
+In case you have keys to be imported, please use the scripts in the import_keys/ folder.
+Plase all your keys under the same folder.
+Please remember to allow enough permissions to read the keystores. Permissions should be similar to the volumes mounted.
+
+keys
+  |__ prysm
+  |__ lighthouse
+  |__ teku
+  |__ nimbus
+  |__ lodestar
+
+### Prysm, Lighthouse, Lodestar
+For Prysm Lighthouse and Lodestar, the folder above should contains something like this:
+  |__ prysm
+		|__ secret.txt
+		|__ keys
+			  |__ keystoreA.json
+			  |__ keystoreB.json
+
+The password should be the same for all validators under keys/ folder.
+
+### Teku
+For Teku, the folder above should contain something like this
+  |__ teku
+		|__ keys
+		|	  |__ keystoreA.json
+		|	  |__ keystoreB.json
+		|__ passwords
+			  |__ keystoreA.txt
+			  |__ keystoreB.txt
+
+The files in the passwords/ folder should have the same name as the corresponing keystore file under the keys/ folder.
+The password file should contain the password to open the corresponding keystore.
+
+### Nimbus
+  |__ nimbus
+		|__ validators
+		|	  |__ keystoreA
+		|			|__ keystoreA.json
+		|	  |__ keystoreB		
+		|	  		|__ keystoreB.json
+		|__ secrets
+			  |__ keystoreA
+			  |__ keystoreB
+
+There should be one folder per keystore containing the keystore json, under the validators/ folder.
+Under the secrets/ folder, one file per keystore must be found (with no extension), with the corresponding password of the keystore.
+Nimbus import process might take some time to complete.
 
 Yoy may only run this for a few minutes until the client has downloaded the latest checkpoint, after that you can stop with Ctrl+C.
 
