@@ -383,7 +383,7 @@ services:
                 init: true
                 volumes:
                         - ./prometheus/:/etc/prometheus/
-                        - ./apps-data/.prometheus:/var/lib/prometheus
+                        - ./apps-data/.prometheus:/prometheus/data
                 command:
                         - '--config.file=/etc/prometheus/prometheus.yml'
                         - '--storage.tsdb.path=/prometheus'
