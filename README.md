@@ -52,47 +52,51 @@ In case you have keys to be imported, please use the scripts in the import_keys/
 Plase all your keys under the same folder.
 Please remember to allow enough permissions to read the keystores. Permissions should be similar to the volumes mounted.
 
-keys
+<pre>
+keys 
   |__ prysm
   |__ lighthouse
   |__ teku
   |__ nimbus
   |__ lodestar
-
+</pre>
 ### Prysm, Lighthouse, Lodestar
 For Prysm Lighthouse and Lodestar, the folder above should contains something like this:
+<pre>
   |__ prysm
-		|__ secret.txt
-		|__ keys
-			  |__ keystoreA.json
-			  |__ keystoreB.json
-
+	|__ secret.txt
+	|__ keys
+	     |__ keystoreA.json
+	     |__ keystoreB.json
+</pre>
 The password should be the same for all validators under keys/ folder.
 
 ### Teku
 For Teku, the folder above should contain something like this
-  |__ teku
-		|__ keys
-		|	  |__ keystoreA.json
-		|	  |__ keystoreB.json
-		|__ passwords
-			  |__ keystoreA.txt
-			  |__ keystoreB.txt
-
+<pre>
+|__ teku
+     |__ keys
+     |	  |__ keystoreA.json
+     |	  |__ keystoreB.json
+     |__ passwords
+          |__ keystoreA.txt
+          |__ keystoreB.txt
+</pre>
 The files in the passwords/ folder should have the same name as the corresponing keystore file under the keys/ folder.
 The password file should contain the password to open the corresponding keystore.
 
 ### Nimbus
-  |__ nimbus
-		|__ validators
-		|	  |__ keystoreA
-		|			|__ keystoreA.json
-		|	  |__ keystoreB		
-		|	  		|__ keystoreB.json
-		|__ secrets
-			  |__ keystoreA
-			  |__ keystoreB
-
+<pre>
+|__ nimbus
+      |__ validators
+      |	     |__ keystoreA
+      |		   |__ keystoreA.json
+      |	     |__ keystoreB		
+      |	  	   |__ keystoreB.json
+      |__ secrets
+            |__ keystoreA
+            |__ keystoreB
+</pre>
 There should be one folder per keystore containing the keystore json, under the validators/ folder.
 Under the secrets/ folder, one file per keystore must be found (with no extension), with the corresponding password of the keystore.
 Nimbus import process might take some time to complete.
