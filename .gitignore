@@ -1,0 +1,6 @@
+apps-data/**
+.env
+.vouch/data/*
+.vouch/vouch.yml
+data/checkpoint_data/*
+data/jwtsecret

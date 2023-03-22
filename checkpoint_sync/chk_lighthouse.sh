@@ -1,0 +1,2 @@
+export $(grep -v '^#' .env | xargs)
+sudo docker run --rm --network=host -v ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse sigp/lighthouse:${LIGHTHOUSE_TAG} lighthouse bn --network=${NETWORK} --checkpoint-sync-url="$1"
