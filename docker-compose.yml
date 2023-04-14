@@ -51,7 +51,6 @@ services:
       - "9001:9000" # P2P port
     command: >-
       lighthouse
-      --spec=mainnet
       --network=${NETWORK}
       --debug-level=info
       --logfile-debug-level=info
