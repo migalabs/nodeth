@@ -1,513 +1,422 @@
 version: '3.7'
 
+
+x-nethermind-base:
+  &nethermind-base
+  image: nethermind/nethermind:${NETHERMIND_VERSION}
+  restart: unless-stopped
+  init: true
+  networks: [ cluster ]
+  command: >-
+    --config=${NETWORK}
+    --JsonRpc.Port=8545
+    --JsonRpc.Host=0.0.0.0
+    --JsonRpc.EnginePort=8551
+    --JsonRpc.EngineHost=0.0.0.0
+    --JsonRpc.AdditionalRpcUrls=http://localhost:8551|http;wss|engine;eth;net;subscribe
+    --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
+    --JsonRpc.Enabled=true
+    --JsonRpc.EnabledModules=Admin
+    --Network.P2PPort=30303
+    --Network.DiscoveryPort=30303
+    --HealthChecks.Enabled=true 
+    --HealthChecks.UIEnabled=true
+    --Metrics.Enabled=true
+    --Metrics.ExposePort=8645
+
+
 services:
-        nethermind-lh:
-                image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-lh-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --config=${NETWORK}
-                        --JsonRpc.Port=8545
-                        --JsonRpc.EnginePort=8551
-                        --JsonRpc.AdditionalRpcUrls=http://localhost:8551|http;wss|engine;eth;net;subscribe
-                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
-                        --JsonRpc.Enabled=true
-                        --JsonRpc.EnabledModules=Admin
-                        --Network.P2PPort=30303
-                        --Network.DiscoveryPort=30303
-                        --HealthChecks.Enabled=true 
-                        --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled=true
-                        --Metrics.ExposePort=8645
+  nethermind-lh:
+    <<: *nethermind-base
+    ports:
+      - "8545:8545"    # JSON-RPC port
+      - "8645:8645"    # Prometheus metrics port
+      - "30303:30303"  # P2P port
+
+    volumes:
+      - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/logs:/nethermind/logs
+      - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/keystore:/nethermind/keystore
+      - ./data:/tmp/ethereum
+  
+  lighthouse:
+    image: sigp/lighthouse:${LIGHTHOUSE_TAG}
+    container_name: lighthouse-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "5054:5054" # Prometheus metrics
+      - "5052:5052" # Rest API port
+      - "9001:9000" # P2P port
+    command: >-
+      lighthouse
+      --spec=mainnet
+      --network=${NETWORK}
+      --debug-level=info
+      --logfile-debug-level=info
+      --logfile=/root/.lighthouse/lighthouse.log
+      beacon_node
+      --slots-per-restore-point=${SLOTS_PER_RESTORE_POINT:-2048}
+      --eth1
+      --http
+      --metrics
+      --execution-endpoints=http://nethermind-lh:8551
+      --jwt-secrets=/tmp/ethereum/jwtsecret
+      --suggested-fee-recipient=${FEE_RECIPIENT}
+
+    volumes:
+      - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
+      - ./data:/tmp/ethereum
+  
+  lighthouse-val:
+    image: sigp/lighthouse:${LIGHTHOUSE_TAG}
+    container_name: lighthouse-val-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "5064:5064" # Prometheus metrics
+    command: >-
+      lighthouse
+      --network=${NETWORK}
+      --debug-level=info
+      --logfile-debug-level=info
+      --logfile=/root/.lighthouse/lighthouse-val.log
+      vc
+      --beacon-nodes=http://lighthouse:5052
+      --enable-doppelganger-protection=true
+      --http
+      --metrics
+      --suggested-fee-recipient=${FEE_RECIPIENT}
+      --graffiti="Lighthouse"
+
+    volumes:
+      - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
+
+  nethermind-prysm:
+    <<: *nethermind-base
+    ports:
+      - "8546:8545"    # JSON-RPC port
+      - "8646:8645"    # Prometheus metrics port
+      - "30304:30303"  # P2P port
+
+    volumes:
+      - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/logs:/nethermind/logs
+      - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/keystore:/nethermind/keystore
+      - ./data:/tmp/ethereum
+
+  prysm:
+    image: gcr.io/prysmaticlabs/prysm/beacon-chain:${PRYSM_TAG}
+    container_name: prysm-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "8080:8080" # Prometheus metrics
+      - "3500:3500" # Rest API port
+      - "9000:9000" # P2P port
+    command: >-
+      --accept-terms-of-use
+      --${NETWORK}
+      --suggested-fee-recipient=${FEE_RECIPIENT}
+      --http-web3provider=http://nethermind-prysm:8551
+      --jwt-secret=/tmp/ethereum/jwtsecret
+      --log-file=/home/.eth2/prysm.log
+    volumes:
+      - ${PRYSM_DATA_FOLDER}/.prysm:/home/.eth2/
+      - ./data:/tmp/ethereum
+  
+  prysm-val:
+    image: gcr.io/prysmaticlabs/prysm/validator:${PRYSM_TAG}
+    container_name: prysm-val-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "8081:8081" # Prometheus metrics
+    command: >-
+      --accept-terms-of-use
+      --${NETWORK}
+      --beacon-rpc-provider=http://prysm:4000
+      --wallet-dir=/wallet 
+      --datadir=/validatorDB
+      --wallet-password-file=/secret.txt
+      --suggested-fee-recipient=${FEE_RECIPIENT}
+      --log-file=/prysm-log/prysm-val.log
+      --enable-doppelganger=true
+      --graffiti="Prysm"
+    volumes:
+      - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
+      - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
+      - ${PRYSM_DATA_FOLDER}/.prysm-val/db:/validatorDB
+      - ${PRYSM_DATA_FOLDER}/.prysm-val/log/:/prysm-log
+  
+  nethermind-teku:
+    <<: *nethermind-base
+    ports:
+      - "8547:8545"   # JSON-RPC port
+      - "8647:8645"   # Prometheus metrics port
+      - "30305:30303" # P2P port
+
+    volumes:
+      - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/logs:/nethermind/logs
+      - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/keystore:/nethermind/keystore
+      - ./data:/tmp/ethereum
+
+  teku:
+    image: consensys/teku:${TEKU_TAG}
+    container_name: teku-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "8008:8008" # Prometheus metrics
+      - "5051:5051" # Rest port
+      - "9002:9000" # P2P port
+    command: >-
+      --network=${NETWORK}
+      --ee-endpoint=http://nethermind-teku:8551
+      --ee-jwt-secret-file=/tmp/ethereum/jwtsecret
+      --log-destination=FILE
+      --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
+      --log-file=/opt/teku/.local/share/teku/teku.log
+      --metrics-enabled=true
+      --rest-api-enabled=true
+      --Xbeacon-liveness-tracking-enabled=true
+
+    volumes:
+      - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
+      - ./data:/tmp/ethereum
+    # Check teku host directory permissions as it throws an error(777)
+  
+  teku-val:
+    image: consensys/teku:${TEKU_TAG}
+    container_name: teku-val-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "5065:8008" # Prometheus Metrics
+    command: >-
+      validator-client
+      --network=${NETWORK}
+      --beacon-node-api-endpoint=http://teku:5051
+      --validator-keys=/validator/keys:/validator/passwords
+      --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
+      --metrics-enabled=true
+      --validators-graffiti="Teku"
+      --log-destination=BOTH
+      --log-file=/opt/teku/.local/share/teku/teku-val.log
+    
+    volumes:
+      - ${TEKU_DATA_FOLDER}/.teku-val:/validator
+      - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
+    # Check teku host directory permissions as it throws an error(777)
+    # Metrics on 8008
+
+  nethermind-nimbus:
+    <<: *nethermind-base
+    ports:
+      - "8548:8545"   # JSON-RPC port
+      - "8648:8645"   # Prometheus metrics port
+      - "30306:30303" # P2P port
+
+    volumes:
+      - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/logs:/nethermind/logs
+      - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/keystore:/nethermind/keystore
+      - ./data:/tmp/ethereum
+
+  nimbus:
+    image: statusim/nimbus-eth2:${NIMBUS_TAG}
+    container_name: nimbus-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "8009:8008" # Prometheus metrics
+      - "5053:5052" # Rest Port
+      - "9003:9000" # P2P port
+    command: >-
+      --network=${NETWORK}
+      --web3-url=http://nethermind-nimbus:8551
+      --rest
+      --metrics
+      --jwt-secret=/tmp/ethereum/jwtsecret
+      --suggested-fee-recipient=${FEE_RECIPIENT}
+      --log-file=/home/user/.cache/nimbus/BeaconNode/nimbus.log
 
 
-                volumes:
-                        - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
-                        - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/logs:/nethermind/logs
-                        - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/keystore:/nethermind/keystore
-                        - ./data:/tmp/ethereum
-        
-        lighthouse:
-                image: sigp/lighthouse:${LIGHTHOUSE_TAG}
-                container_name: lighthouse-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        lighthouse
-                        --spec=mainnet
-                        --network=${NETWORK}
-                        --debug-level=info
-                        --logfile-debug-level=info
-                        --logfile=/root/.lighthouse/lighthouse.log
-                        beacon_node
-                        --eth1
-                        --http
-                        --http-allow-sync-stalled
-                        --metrics
-                        --execution-endpoints=http://127.0.0.1:8551
-                        --enr-udp-port=9001
-                        --enr-tcp-port=9001
-                        --discovery-port=9001
-                        --jwt-secrets=/tmp/ethereum/jwtsecret
-                        --suggested-fee-recipient=${FEE_RECIPIENT}
+    volumes:
+      - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
+      - ./data:/tmp/ethereum
 
-                volumes:
-                        - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
-                        - ./data:/tmp/ethereum
-        
-        lighthouse-val:
-                image: sigp/lighthouse:${LIGHTHOUSE_TAG}
-                container_name: lighthouse-val-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        lighthouse
-                        --spec=mainnet
-                        --network=${NETWORK}
-                        --debug-level=info
-                        --logfile-debug-level=info
-                        --logfile=/root/.lighthouse/lighthouse-val.log
-                        vc
-                        --enable-doppelganger-protection=true
-                        --http
-                        --metrics
-                        --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --graffiti="Lighthouse"
+  nethermind-lodestar:
+    <<: *nethermind-base
+    ports:
+      - "8549:8545"   # JSON-RPC port
+      - "8649:8645"   # Prometheus metrics port
+      - "30307:30303" # P2P port
 
-                volumes:
-                        - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
+    volumes:
+      - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/logs:/nethermind/logs
+      - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
+      - ./data:/tmp/ethereum
 
-        nethermind-prysm:
-                image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-prysm-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --config=${NETWORK}
-                        --JsonRpc.Port=8546
-                        --JsonRpc.EnginePort=8552
-                        --JsonRpc.AdditionalRpcUrls=http://localhost:8552|http;wss|engine;eth;net;subscribe
-                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
-                        --JsonRpc.Enabled=true
-                        --JsonRpc.EnabledModules=Admin
-                        --Network.P2PPort=30304
-                        --Network.DiscoveryPort=30304
-                        --HealthChecks.Enabled=true 
-                        --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled=true
-                        --Metrics.ExposePort=8646
+  lodestar:
+    image: chainsafe/lodestar:${LODESTAR_TAG}
+    container_name: lodestar-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "8010:8008" # Prometheus metrics
+      - "9596:9596" # Rest port
+      - "9004:9000" # P2P port
+    command: >-
+      beacon
+      --network=${NETWORK}
+      --execution.urls="http://nethermind-lodestar:8551"
+      --network.connectToDiscv5Bootnodes
+      --suggestedFeeRecipient=${FEE_RECIPIENT}
+      --jwt-secret="/tmp/ethereum/jwtsecret"
+      --logFile=/root/.local/share/lodestar/lodestar.log
+      --metrics=true
 
+    volumes:
+      - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
+      - ./data:/tmp/ethereum
+  
+  lodestar-val:
+    image: chainsafe/lodestar:${LODESTAR_TAG}
+    container_name: lodestar-val-${NETWORK}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "5067:5064" # Prometheus metrics
+    command: >-
+      validator
+      --network=${NETWORK}
+      --beaconNodes=http://lodestar:9596
+      --keystore=/validator/keys
+      --passphraseFile=/validator/secret.txt
+      --suggestedFeeRecipient=${FEE_RECIPIENT}
+      --doppelgangerProtectionEnabled=true
+      --metrics=true
+      --graffiti="Lodestar"
+      --logFile=/root/.local/share/lodestar/lodestar-val.log
 
-                volumes:
-                        - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
-                        - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/logs:/nethermind/logs
-                        - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/keystore:/nethermind/keystore
-                        - ./data:/tmp/ethereum
-        prysm:
-                image: gcr.io/prysmaticlabs/prysm/beacon-chain:${PRYSM_TAG}
-                container_name: prysm-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --accept-terms-of-use
-                        --${NETWORK}
-                        --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --http-web3provider=http://localhost:8552
-                        --jwt-secret=/tmp/ethereum/jwtsecret
-                        --log-file=/home/.eth2/prysm.log
-                volumes:
-                        - ${PRYSM_DATA_FOLDER}/.prysm:/home/.eth2/
-                        - ./data:/tmp/ethereum
-        
-        prysm-val:
-                image: gcr.io/prysmaticlabs/prysm/validator:${PRYSM_TAG}
-                container_name: prysm-val-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --accept-terms-of-use
-                        --${NETWORK}
-                        --beacon-rpc-provider=localhost:4000
-                        --wallet-dir=/wallet 
-                        --datadir=/validatorDB
-                        --wallet-password-file=/secret.txt
-                        --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --log-file=/prysm-log/prysm-val.log
-                        --enable-doppelganger=true
-                        --graffiti="Prysm"
-                volumes:
-                        - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
-                        - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
-                        - ${PRYSM_DATA_FOLDER}/.prysm-val/db:/validatorDB
-                        - ${PRYSM_DATA_FOLDER}/.prysm-val/log/:/prysm-log
-        
-        nethermind-teku:
-                image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-teku-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --config=${NETWORK}
-                        --JsonRpc.Port=8547
-                        --JsonRpc.EnginePort=8553
-                        --JsonRpc.AdditionalRpcUrls=http://localhost:8553|http;wss|engine;eth;net;subscribe
-                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
-                        --JsonRpc.Enabled=true
-                        --JsonRpc.EnabledModules=Admin
-                        --Network.P2PPort=30305
-                        --Network.DiscoveryPort=30305
-                        --HealthChecks.Enabled=true 
-                        --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled=true
-                        --Metrics.ExposePort=8647
+    volumes:
+      - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
+      - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
+      - ./data:/tmp/ethereum
+  
+  prometheus:
+    image: prom/prometheus:v2.36.2
+    container_name: prometheus
+    init: true
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - ./apps-data/.prometheus:/prometheus/data
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.listen-address=0.0.0.0:9090'
+      - '--storage.tsdb.retention.time=1y'
+    network_mode: 'host'
+    restart: always
+  
+  pushgateway:
+    image: prom/pushgateway
+    container_name: pushgateway
+    restart: unless-stopped
+    init: true
+    network_mode: 'host'
+    labels:
+      org.label-schema.group: "monitoring"
+  
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    init: true
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - ./apps-data/prometheus-node-exporter:/host:ro,rslave
 
+  grafana:
+    build: './grafana'
+    container_name: 'grafana'
+    init: true
+    network_mode: 'host'
+    volumes:
+      - ./apps-data/grafana:/var/lib/grafana
+  
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    init: true
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes: 
+      - ./data/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+      - ./apps-data/.postgres-data/:/var/lib/postgresql
+    network_mode: 'host'
 
-                volumes:
-                        - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
-                        - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/logs:/nethermind/logs
-                        - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/keystore:/nethermind/keystore
-                        - ./data:/tmp/ethereum
-        teku:
-                image: consensys/teku:${TEKU_TAG}
-                container_name: teku-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --network=${NETWORK}
-                        --p2p-port=9002
-                        --ee-endpoint=http://localhost:8553
-                        --ee-jwt-secret-file=/tmp/ethereum/jwtsecret
-                        --log-destination=FILE
-                        --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
-                        --log-file=/opt/teku/.local/share/teku/teku.log
-                        --metrics-enabled=true
-                        --rest-api-enabled=true
-                        --Xbeacon-liveness-tracking-enabled=true
-                
-                volumes:
-                        - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
-                        - ./data:/tmp/ethereum
-                # Check teku host directory permissions as it throws an error(777)
-        
-        teku-val:
-                image: consensys/teku:${TEKU_TAG}
-                container_name: teku-val-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        validator-client
-                        --network=${NETWORK}
-                        --beacon-node-api-endpoint=http://localhost:5051
-                        --validator-keys=/validator/keys:/validator/passwords
-                        --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
-                        --metrics-enabled=true
-                        --metrics-port=5065
-                        --validators-graffiti="Teku"
-                        --log-destination=BOTH
-                        --log-file=/opt/teku/.local/share/teku/teku-val.log
-                
-                volumes:
-                        - ${TEKU_DATA_FOLDER}/.teku-val:/validator
-                        - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
-                # Check teku host directory permissions as it throws an error(777)
-                # Metrics on 8008
+  
+  vouch:
+    image: vouch-tdahar:latest
+    build:
+      context: ./.vouch/
+      dockerfile: Dockerfile
+    container_name: vouch
+    init: true
+    network_mode: 'host'
+    restart: always
+    volumes: 
+      - ./apps-data/.vouch/data:/app/logs
+      - ./.vouch/vouch.yml:/app/vouch.yml
+  
+  eth-cl-live-metrics:
+    image: eth-cl-live-metrics:latest
+    build:
+      context: ./.eth_cl_live_metrics/
+      dockerfile: Dockerfile
+    container_name: eth-cl-live-metrics
+    init: true
+    command: >-
+      live-metrics
+      --log-level=${LIVE_METRICS_LOG_LEVEL}
+      --bn-endpoints=${LIVE_METRICS_BN_ENDPOINTS}
+      --db-endpoint=${LIVE_METRICS_DB_ENDPOINT}
+      --db-workers=${LIVE_METRICS_DB_WORKERS}
+      --metrics=${LIVE_METRICS_METRICS}
+    network_mode: 'host'
+    restart: unless-stopped
+          
+  pool-metrics:
+    image: alrevuelta/eth-metrics:0.1.4
+    container_name: eth-pool-metrics-${NETWORK}
+    init: true
+    network_mode: 'host'
+    command: >-
+      --from-address=0xa111B576408B1CcDacA3eF26f22f082C49bcaa55
+      --eth1address=${POOL_METRICS_EL_ENDPOINT}
+      --eth2address=${POOL_METRICS_CL_ENDPOINT}
+      --pool-name=/custom_pools/frankfurt-lighthouse.txt
+    volumes:
+      - ${POOL_METRICS_PUBKEYS_FOLDER}:/custom_pools/
 
-        nethermind-nimbus:
-                image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-nimbus-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --config=${NETWORK}
-                        --JsonRpc.Port=8548
-                        --JsonRpc.EnginePort=8554
-                        --JsonRpc.AdditionalRpcUrls=http://localhost:8554|http;wss|engine;eth;net;subscribe
-                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
-                        --JsonRpc.Enabled=true
-                        --JsonRpc.EnabledModules=Admin
-                        --Network.P2PPort=30306
-                        --Network.DiscoveryPort=30306
-                        --HealthChecks.Enabled=true 
-                        --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled=true
-                        --Metrics.ExposePort=8648
-
-
-                volumes:
-                        - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
-                        - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/logs:/nethermind/logs
-                        - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/keystore:/nethermind/keystore
-                        - ./data:/tmp/ethereum
-        nimbus-custom:
-                image: nimbus-custom:latest
-                build:
-                        context: ./.nimbus/
-                        dockerfile: Dockerfile
-                container_name: nimbus-custom-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --network=${NETWORK}
-                        --web3-url=http://127.0.0.1:8554
-                        --rest
-                        --metrics
-                        --jwt-secret=/tmp/ethereum/jwtsecret
-                        --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --tcp-port=9003
-                        --udp-port=9003
-                        --rest-port=5053
-                        --metrics-port=8009
-                        --log-file=/app/build/data/shared_mainnet_0/nimbus.log
-                        --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --graffiti="Nimbus"
-
-
-                volumes:
-                        - ${NIMBUS_DATA_FOLDER}/.nimbus:/app/build/data/shared_mainnet_0/
-                        - ./data:/tmp/ethereum
-                # Check nimbus directory permissions (700)
-                # Nimbus automatically activates doppelganger detection
-                # Possibly prometheus metrics come together
-        nimbus:
-                image: statusim/nimbus-eth2:${NIMBUS_TAG}
-                container_name: nimbus-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --network=${NETWORK}
-                        --web3-url=http://127.0.0.1:8554
-                        --rest
-                        --metrics
-                        --jwt-secret=/tmp/ethereum/jwtsecret
-                        --suggested-fee-recipient=${FEE_RECIPIENT}
-                        --tcp-port=9003
-                        --udp-port=9003
-                        --rest-port=5053
-                        --metrics-port=8009
-                        --log-file=/home/user/.cache/nimbus/BeaconNode/nimbus.log
-                        --suggested-fee-recipient=${FEE_RECIPIENT}
-
-
-                volumes:
-                        - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
-                        - ./data:/tmp/ethereum
-
-        nethermind-lodestar:
-                image: nethermind/nethermind:${NETHERMIND_VERSION}
-                container_name: nethermind-lodestar-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        --config=${NETWORK}
-                        --JsonRpc.Port=8549
-                        --JsonRpc.EnginePort=8555
-                        --JsonRpc.AdditionalRpcUrls=http://localhost:8555|http;wss|engine;eth;net;subscribe
-                        --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
-                        --JsonRpc.Enabled=true
-                        --JsonRpc.EnabledModules=Admin
-                        --Network.P2PPort=30307
-                        --Network.DiscoveryPort=30307
-                        --HealthChecks.Enabled=true 
-                        --HealthChecks.UIEnabled=true
-                        --Metrics.Enabled=true
-                        --Metrics.ExposePort=8649
-
-
-                volumes:
-                        - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
-                        - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/logs:/nethermind/logs
-                        - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
-                        - ./data:/tmp/ethereum
-        lodestar:
-                image: chainsafe/lodestar:${LODESTAR_TAG}
-                container_name: lodestar-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        beacon
-                        --network=${NETWORK}
-                        --port=9004
-                        --execution.urls="http://127.0.0.1:8555"
-                        --network.connectToDiscv5Bootnodes
-                        --suggestedFeeRecipient=${FEE_RECIPIENT}
-                        --jwt-secret="/tmp/ethereum/jwtsecret"
-                        --logFile=/root/.local/share/lodestar/lodestar.log
-                        --metrics=true
-                        --metrics.port=8010
-
-                volumes:
-                        - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
-                        - ./data:/tmp/ethereum
-        
-        lodestar-val:
-                image: chainsafe/lodestar:${LODESTAR_TAG}
-                container_name: lodestar-val-${NETWORK}
-                restart: unless-stopped
-                init: true
-                network_mode: host
-                command: >-
-                        validator
-                        --network=${NETWORK}
-                        --keystore=/validator/keys
-                        --passphraseFile=/validator/secret.txt
-                        --suggestedFeeRecipient=${FEE_RECIPIENT}
-                        --doppelgangerProtectionEnabled=true
-                        --metrics=true
-                        --metrics.port=5067
-                        --graffiti="Lodestar"
-                        --logFile=/root/.local/share/lodestar/lodestar-val.log
-
-                volumes:
-                        - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
-                        - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
-                        - ./data:/tmp/ethereum
-        
-        prometheus:
-                image: prom/prometheus:v2.36.2
-                container_name: prometheus
-                init: true
-                volumes:
-                        - ./prometheus/:/etc/prometheus/
-                        - ./apps-data/.prometheus:/prometheus/data
-                command:
-                        - '--config.file=/etc/prometheus/prometheus.yml'
-                        - '--storage.tsdb.path=/prometheus'
-                        - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-                        - '--web.console.templates=/usr/share/prometheus/consoles'
-                        - '--web.listen-address=0.0.0.0:9090'
-                        - '--storage.tsdb.retention.time=1y'
-                network_mode: 'host'
-                restart: always
-        
-        pushgateway:
-                image: prom/pushgateway
-                container_name: pushgateway
-                restart: unless-stopped
-                init: true
-                network_mode: 'host'
-                labels:
-                  org.label-schema.group: "monitoring"
-        
-        node_exporter:
-                image: quay.io/prometheus/node-exporter:latest
-                container_name: node_exporter
-                command:
-                  - '--path.rootfs=/host'
-                init: true
-                network_mode: host
-                pid: host
-                restart: unless-stopped
-                volumes:
-                  - ./apps-data/prometheus-node-exporter:/host:ro,rslave
-
-        grafana:
-                build: './grafana'
-                container_name: 'grafana'
-                init: true
-                network_mode: 'host'
-                volumes:
-                  - ./apps-data/grafana:/var/lib/grafana
-        
-        db:
-                image: postgres:14.1-alpine
-                restart: always
-                init: true
-                environment:
-                        - POSTGRES_USER=${POSTGRES_USER}
-                        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-                volumes: 
-                        - ./data/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
-                        - ./apps-data/.postgres-data/:/var/lib/postgresql
-                network_mode: 'host'
-
-        
-        vouch:
-                image: vouch-tdahar:latest
-                build:
-                        context: ./.vouch/
-                        dockerfile: Dockerfile
-                container_name: vouch
-                init: true
-                network_mode: 'host'
-                restart: always
-                volumes: 
-                        - ./apps-data/.vouch/data:/app/logs
-                        - ./.vouch/vouch.yml:/app/vouch.yml
-        
-        eth-cl-live-metrics:
-                image: eth-cl-live-metrics:latest
-                build:
-                        context: ./.eth_cl_live_metrics/
-                        dockerfile: Dockerfile
-                container_name: eth-cl-live-metrics
-                init: true
-                command: >-
-                        live-metrics
-                        --log-level=${LIVE_METRICS_LOG_LEVEL}
-                        --bn-endpoints=${LIVE_METRICS_BN_ENDPOINTS}
-                        --db-endpoint=${LIVE_METRICS_DB_ENDPOINT}
-                        --db-workers=${LIVE_METRICS_DB_WORKERS}
-                        --metrics=${LIVE_METRICS_METRICS}
-                network_mode: 'host'
-                restart: unless-stopped
-                
-        pool-metrics:
-                image: alrevuelta/eth-metrics:0.1.4
-                container_name: eth-pool-metrics-${NETWORK}
-                init: true
-                network_mode: 'host'
-                command: >-
-                        --from-address=0xa111B576408B1CcDacA3eF26f22f082C49bcaa55
-                        --eth1address=${POOL_METRICS_EL_ENDPOINT}
-                        --eth2address=${POOL_METRICS_CL_ENDPOINT}
-                        --pool-name=/custom_pools/frankfurt-lighthouse.txt
-                        --pool-name=/custom_pools/frankfurt-prysm.txt 
-                        --pool-name=/custom_pools/frankfurt-teku.txt
-                        --pool-name=/custom_pools/frankfurt-nimbus.txt
-                        --pool-name=/custom_pools/frankfurt-lodestar.txt
-                        --pool-name=/custom_pools/london-lighthouse.txt
-                        --pool-name=/custom_pools/london-prysm.txt 
-                        --pool-name=/custom_pools/london-teku.txt
-                        --pool-name=/custom_pools/london-nimbus.txt
-                        --pool-name=/custom_pools/london-lodestar.txt
-                        --pool-name=/custom_pools/warsaw-lighthouse.txt
-                        --pool-name=/custom_pools/warsaw-prysm.txt 
-                        --pool-name=/custom_pools/warsaw-teku.txt
-                        --pool-name=/custom_pools/warsaw-nimbus.txt
-                        --pool-name=/custom_pools/warsaw-lodestar.txt
-                        --pool-name=/custom_pools/sydney-lighthouse.txt
-                        --pool-name=/custom_pools/sydney-prysm.txt 
-                        --pool-name=/custom_pools/sydney-teku.txt
-                        --pool-name=/custom_pools/sydney-nimbus.txt
-                        --pool-name=/custom_pools/sydney-lodestar.txt
-                        --pool-name=/custom_pools/toronto-lighthouse.txt
-                        --pool-name=/custom_pools/toronto-prysm.txt 
-                        --pool-name=/custom_pools/toronto-teku.txt
-                        --pool-name=/custom_pools/toronto-nimbus.txt
-                        --pool-name=/custom_pools/toronto-lodestar.txt
-                        --pool-name=/custom_pools/singapore-lighthouse.txt
-                        --pool-name=/custom_pools/singapore-prysm.txt 
-                        --pool-name=/custom_pools/singapore-teku.txt
-                        --pool-name=/custom_pools/singapore-nimbus.txt
-                        --pool-name=/custom_pools/singapore-lodestar.txt
-                volumes:
-                        - ${POOL_METRICS_PUBKEYS_FOLDER}:/custom_pools/
-                
-
-        
-        
+networks:
+  cluster:
