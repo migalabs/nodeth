@@ -408,7 +408,9 @@ services:
     image: alrevuelta/eth-metrics:0.1.4
     container_name: eth-pool-metrics-${NETWORK}
     init: true
-    network_mode: 'host'
+    networks: [ cluster ]
+    ports:
+      - "127.0.0.1:9500:9500"
     command: >-
       --from-address=0xa111B576408B1CcDacA3eF26f22f082C49bcaa55
       --eth1address=${POOL_METRICS_EL_ENDPOINT}
