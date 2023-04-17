@@ -29,8 +29,8 @@ services:
   nethermind-lh:
     <<: *nethermind-base
     ports:
-      - "8545:8545"    # JSON-RPC port
-      - "8645:8645"    # Prometheus metrics port
+      - "8545:127.0.0.1:8545"    # JSON-RPC port
+      - "8645:127.0.0.1:8645"    # Prometheus metrics port
       - "30303:30303"  # P2P port
 
     volumes:
@@ -46,8 +46,8 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "5054:5054" # Prometheus metrics
-      - "5052:5052" # Rest API port
+      - "5054:127.0.0.1:5054" # Prometheus metrics
+      - "5052:127.0.0.1:5052" # Rest API port
       - "9001:9000" # P2P port
     command: >-
       lighthouse
@@ -75,7 +75,7 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "5064:5064" # Prometheus metrics
+      - "5064:127.0.0.1:5064" # Prometheus metrics
     command: >-
       lighthouse
       --network=${NETWORK}
@@ -96,8 +96,8 @@ services:
   nethermind-prysm:
     <<: *nethermind-base
     ports:
-      - "8546:8545"    # JSON-RPC port
-      - "8646:8645"    # Prometheus metrics port
+      - "8546:127.0.0.1:8545"    # JSON-RPC port
+      - "8646:127.0.0.1:8645"    # Prometheus metrics port
       - "30304:30303"  # P2P port
 
     volumes:
@@ -113,8 +113,8 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "8080:8080" # Prometheus metrics
-      - "3500:3500" # Rest API port
+      - "8080:127.0.0.1:8080" # Prometheus metrics
+      - "3500:127.0.0.1:3500" # Rest API port
       - "9000:9000" # P2P port
     command: >-
       --accept-terms-of-use
@@ -134,7 +134,7 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "8081:8081" # Prometheus metrics
+      - "8081:127.0.0.1:8081" # Prometheus metrics
     command: >-
       --accept-terms-of-use
       --${NETWORK}
@@ -155,8 +155,8 @@ services:
   nethermind-teku:
     <<: *nethermind-base
     ports:
-      - "8547:8545"   # JSON-RPC port
-      - "8647:8645"   # Prometheus metrics port
+      - "8547:127.0.0.1:8545"   # JSON-RPC port
+      - "8647:127.0.0.1:8645"   # Prometheus metrics port
       - "30305:30303" # P2P port
 
     volumes:
@@ -172,8 +172,8 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "8008:8008" # Prometheus metrics
-      - "5051:5051" # Rest port
+      - "8008:127.0.0.1:8008" # Prometheus metrics
+      - "5051:127.0.0.1:5051" # Rest port
       - "9002:9000" # P2P port
     command: >-
       --network=${NETWORK}
@@ -198,7 +198,7 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "5065:8008" # Prometheus Metrics
+      - "5065:127.0.0.1:8008" # Prometheus Metrics
     command: >-
       validator-client
       --network=${NETWORK}
@@ -219,8 +219,8 @@ services:
   nethermind-nimbus:
     <<: *nethermind-base
     ports:
-      - "8548:8545"   # JSON-RPC port
-      - "8648:8645"   # Prometheus metrics port
+      - "8548:127.0.0.1:8545"   # JSON-RPC port
+      - "8648:127.0.0.1:8645"   # Prometheus metrics port
       - "30306:30303" # P2P port
 
     volumes:
@@ -236,8 +236,8 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "8009:8008" # Prometheus metrics
-      - "5053:5052" # Rest Port
+      - "8009:127.0.0.1:8008" # Prometheus metrics
+      - "5053:127.0.0.1:5052" # Rest Port
       - "9003:9000" # P2P port
     command: >-
       --network=${NETWORK}
@@ -256,8 +256,8 @@ services:
   nethermind-lodestar:
     <<: *nethermind-base
     ports:
-      - "8549:8545"   # JSON-RPC port
-      - "8649:8645"   # Prometheus metrics port
+      - "8549:127.0.0.1:8545"   # JSON-RPC port
+      - "8649:127.0.0.1:8645"   # Prometheus metrics port
       - "30307:30303" # P2P port
 
     volumes:
@@ -273,8 +273,8 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "8010:8008" # Prometheus metrics
-      - "9596:9596" # Rest port
+      - "8010:127.0.0.1:8008" # Prometheus metrics
+      - "9596:127.0.0.1:9596" # Rest port
       - "9004:9000" # P2P port
     command: >-
       beacon
@@ -297,7 +297,7 @@ services:
     init: true
     networks: [ cluster ]
     ports:
-      - "5067:5064" # Prometheus metrics
+      - "5067:127.0.0.1:5064" # Prometheus metrics
     command: >-
       validator
       --network=${NETWORK}
