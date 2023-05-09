@@ -47,7 +47,7 @@ services:
     ports:
       - "127.0.0.1:5054:5054" # Prometheus metrics
       - "127.0.0.1:5052:5052" # Rest API port
-      - "9099:9000" # P2P port
+      - "9001:9000" # P2P port
     command: >-
       lighthouse
       --network=${NETWORK}
@@ -55,10 +55,11 @@ services:
       --logfile-debug-level=info
       --logfile=/root/.lighthouse/lighthouse.log
       beacon_node
-      --slots-per-restore-point=${SLOTS_PER_RESTORE_POINT:-2048}
+      --slots-per-restore-point=${SLOTS_PER_RESTORE_POINT:-8192}
       --eth1
       --http
       --metrics
+      --metrics-address=0.0.0.0
       --execution-endpoints=http://nethermind-lh:8551
       --jwt-secrets=/tmp/ethereum/jwtsecret
       --suggested-fee-recipient=${FEE_RECIPIENT}
@@ -119,7 +120,8 @@ services:
       --accept-terms-of-use
       --${NETWORK}
       --suggested-fee-recipient=${FEE_RECIPIENT}
-      --http-web3provider=http://nethermind-prysm:8551
+      --execution-endpoint=http://nethermind-prysm:8551
+      --monitoring-host=0.0.0.0
       --jwt-secret=/tmp/ethereum/jwtsecret
       --log-file=/home/.eth2/prysm.log
     volumes:
@@ -182,8 +184,8 @@ services:
       --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
       --log-file=/opt/teku/.local/share/teku/teku.log
       --metrics-enabled=true
+      --metrics-interface=0.0.0.0
       --rest-api-enabled=true
-      --Xbeacon-liveness-tracking-enabled=true
 
     volumes:
       - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
@@ -246,7 +248,7 @@ services:
       --jwt-secret=/tmp/ethereum/jwtsecret
       --suggested-fee-recipient=${FEE_RECIPIENT}
       --log-file=/home/user/.cache/nimbus/BeaconNode/nimbus.log
-
+      --metrics-address=0.0.0.0
 
     volumes:
       - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
@@ -284,6 +286,7 @@ services:
       --jwt-secret="/tmp/ethereum/jwtsecret"
       --logFile=/root/.local/share/lodestar/lodestar.log
       --metrics=true
+      --metrics.address=0.0.0.0
 
     volumes:
       - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
