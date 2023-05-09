@@ -16,7 +16,6 @@ x-nethermind-base:
     --JsonRpc.AdditionalRpcUrls=http://localhost:8551|http;wss|engine;eth;net;subscribe
     --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
     --JsonRpc.Enabled=true
-    --JsonRpc.EnabledModules=Admin
     --Network.P2PPort=30303
     --Network.DiscoveryPort=30303
     --HealthChecks.Enabled=true 
@@ -48,7 +47,7 @@ services:
     ports:
       - "127.0.0.1:5054:5054" # Prometheus metrics
       - "127.0.0.1:5052:5052" # Rest API port
-      - "9001:9000" # P2P port
+      - "9099:9000" # P2P port
     command: >-
       lighthouse
       --network=${NETWORK}
@@ -319,6 +318,8 @@ services:
     image: prom/prometheus:v2.36.2
     container_name: prometheus
     init: true
+    environment:
+      REMOTE_WRITE_URL: ${PROMETHEUS_REMOTE_WRITE_URL}
     volumes:
       - ./prometheus/:/etc/prometheus/
       - ./apps-data/.prometheus:/prometheus/data
@@ -329,6 +330,7 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.listen-address=0.0.0.0:9090'
       - '--storage.tsdb.retention.time=1y'
+      - '--enable-feature=remote-write-receiver'
     network_mode: 'host'
     restart: always
   
@@ -341,17 +343,15 @@ services:
     labels:
       org.label-schema.group: "monitoring"
   
-  node_exporter:
-    image: quay.io/prometheus/node-exporter:latest
-    container_name: node_exporter
+  node-exporter:
+    image: prom/node-exporter:${NODE_EXPORTER_VERSION:-v1.5.0}
+    network_mode: host
     command:
       - '--path.rootfs=/host'
-    init: true
-    network_mode: host
     pid: host
     restart: unless-stopped
     volumes:
-      - ./apps-data/prometheus-node-exporter:/host:ro,rslave
+      - '/:/host:ro,rslave'
 
   grafana:
     build: './grafana'
