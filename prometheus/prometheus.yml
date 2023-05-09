@@ -8,7 +8,11 @@ global:
   # Attach these labels to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
   external_labels:
-      monitor: 'example'
+      server: 'server_ip'
+      project_name: 'project_name'
+
+remote_write:
+  - url: http://remote_ip:remote_port/api/v1/write
 
 # Alertmanager configuration
 alerting:
