@@ -60,6 +60,7 @@ services:
       --http
       --metrics
       --metrics-address=0.0.0.0
+      --http-address=0.0.0.0
       --execution-endpoints=http://nethermind-lh:8551
       --jwt-secrets=/tmp/ethereum/jwtsecret
       --suggested-fee-recipient=${FEE_RECIPIENT}
@@ -116,12 +117,14 @@ services:
       - "127.0.0.1:8080:8080" # Prometheus metrics
       - "127.0.0.1:3500:3500" # Rest API port
       - "9000:9000" # P2P port
+      - "127.0.0.1:4000:4000" # For Prysm val
     command: >-
       --accept-terms-of-use
       --${NETWORK}
       --suggested-fee-recipient=${FEE_RECIPIENT}
       --execution-endpoint=http://nethermind-prysm:8551
       --monitoring-host=0.0.0.0
+      --rpc-host=0.0.0.0
       --jwt-secret=/tmp/ethereum/jwtsecret
       --log-file=/home/.eth2/prysm.log
     volumes:
@@ -133,9 +136,7 @@ services:
     container_name: prysm-val-${NETWORK}
     restart: unless-stopped
     init: true
-    networks: [ cluster ]
-    ports:
-      - "127.0.0.1:8081:8081" # Prometheus metrics
+    network_mode: host # For now as Prysm does not allow to connect to remote bn
     command: >-
       --accept-terms-of-use
       --${NETWORK}
@@ -184,6 +185,7 @@ services:
       --metrics-enabled=true
       --metrics-interface=0.0.0.0
       --rest-api-enabled=true
+      --rest-api-interface=0.0.0.0
 
     volumes:
       - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
@@ -206,8 +208,6 @@ services:
       --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
       --metrics-enabled=true
       --validators-graffiti="Teku"
-      --log-destination=BOTH
-      --log-file=/opt/teku/.local/share/teku/teku-val.log
     
     volumes:
       - ${TEKU_DATA_FOLDER}/.teku-val:/validator
@@ -285,6 +285,7 @@ services:
       --logFile=/root/.local/share/lodestar/lodestar.log
       --metrics=true
       --metrics.address=0.0.0.0
+      --rest.address=0.0.0.0
 
     volumes:
       - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
