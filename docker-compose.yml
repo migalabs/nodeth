@@ -319,8 +319,6 @@ services:
     image: prom/prometheus:v2.36.2
     container_name: prometheus
     init: true
-    environment:
-      REMOTE_WRITE_URL: ${PROMETHEUS_REMOTE_WRITE_URL}
     volumes:
       - ./prometheus/:/etc/prometheus/
       - ./apps-data/.prometheus:/prometheus/data
