@@ -140,7 +140,6 @@ services:
     command: >-
       --accept-terms-of-use
       --${NETWORK}
-      --beacon-rpc-provider=http://prysm:4000
       --wallet-dir=/wallet 
       --datadir=/validatorDB
       --wallet-password-file=/secret.txt
@@ -186,6 +185,7 @@ services:
       --metrics-interface=0.0.0.0
       --rest-api-enabled=true
       --rest-api-interface=0.0.0.0
+      --rest-api-host-allowlist=localhost, 127.0.0.1,teku-val,*
 
     volumes:
       - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
