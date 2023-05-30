@@ -186,6 +186,7 @@ services:
       --rest-api-enabled=true
       --rest-api-interface=0.0.0.0
       --rest-api-host-allowlist=localhost, 127.0.0.1,teku-val,*
+      --beacon-liveness-tracking-enabled=true
 
     volumes:
       - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
@@ -208,6 +209,7 @@ services:
       --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
       --metrics-enabled=true
       --validators-graffiti="Teku"
+      --doppelganger-detection-enabled=true
     
     volumes:
       - ${TEKU_DATA_FOLDER}/.teku-val:/validator
