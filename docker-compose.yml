@@ -40,7 +40,6 @@ services:
   
   lighthouse:
     image: sigp/lighthouse:${LIGHTHOUSE_TAG}
-    container_name: lighthouse-${NETWORK}
     restart: unless-stopped
     init: true
     networks: [ cluster ]
@@ -71,7 +70,6 @@ services:
   
   lighthouse-val:
     image: sigp/lighthouse:${LIGHTHOUSE_TAG}
-    container_name: lighthouse-val-${NETWORK}
     restart: unless-stopped
     init: true
     networks: [ cluster ]
@@ -109,7 +107,6 @@ services:
 
   prysm:
     image: gcr.io/prysmaticlabs/prysm/beacon-chain:${PRYSM_TAG}
-    container_name: prysm-${NETWORK}
     restart: unless-stopped
     init: true
     networks: [ cluster ]
@@ -133,7 +130,6 @@ services:
   
   prysm-val:
     image: gcr.io/prysmaticlabs/prysm/validator:${PRYSM_TAG}
-    container_name: prysm-val-${NETWORK}
     restart: unless-stopped
     init: true
     network_mode: host # For now as Prysm does not allow to connect to remote bn
@@ -168,7 +164,6 @@ services:
 
   teku:
     image: consensys/teku:${TEKU_TAG}
-    container_name: teku-${NETWORK}
     restart: unless-stopped
     init: true
     networks: [ cluster ]
@@ -195,7 +190,6 @@ services:
   
   teku-val:
     image: consensys/teku:${TEKU_TAG}
-    container_name: teku-val-${NETWORK}
     restart: unless-stopped
     init: true
     networks: [ cluster ]
@@ -232,7 +226,6 @@ services:
 
   nimbus:
     image: statusim/nimbus-eth2:${NIMBUS_TAG}
-    container_name: nimbus-${NETWORK}
     restart: unless-stopped
     init: true
     networks: [ cluster ]
@@ -269,7 +262,6 @@ services:
 
   lodestar:
     image: chainsafe/lodestar:${LODESTAR_TAG}
-    container_name: lodestar-${NETWORK}
     restart: unless-stopped
     init: true
     networks: [ cluster ]
@@ -295,7 +287,6 @@ services:
   
   lodestar-val:
     image: chainsafe/lodestar:${LODESTAR_TAG}
-    container_name: lodestar-val-${NETWORK}
     restart: unless-stopped
     init: true
     networks: [ cluster ]
@@ -338,7 +329,6 @@ services:
   
   pushgateway:
     image: prom/pushgateway
-    container_name: pushgateway
     restart: unless-stopped
     init: true
     network_mode: 'host'
@@ -357,7 +347,6 @@ services:
 
   grafana:
     build: './grafana'
-    container_name: 'grafana'
     init: true
     network_mode: 'host'
     volumes:
@@ -381,7 +370,6 @@ services:
     build:
       context: ./.vouch/
       dockerfile: Dockerfile
-    container_name: vouch
     init: true
     network_mode: 'host'
     restart: always
