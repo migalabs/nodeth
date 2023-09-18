@@ -324,7 +324,7 @@ services:
       - '--storage.tsdb.retention.time=1y'
       - '--enable-feature=remote-write-receiver'
     network_mode: 'host'
-    restart: always
+    restart: unless-stopped
   
   pushgateway:
     image: prom/pushgateway
@@ -353,7 +353,7 @@ services:
   
   db:
     image: postgres:14.1-alpine
-    restart: always
+    restart: unless-stopped 
     init: true
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
