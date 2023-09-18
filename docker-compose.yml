@@ -1,6 +1,8 @@
 version: '3.7'
 
-
+# -------------------------------------------------
+# Base
+# -------------------------------------------------
 x-nethermind-base:
   &nethermind-base
   image: nethermind/nethermind:${NETHERMIND_VERSION}
@@ -24,7 +26,13 @@ x-nethermind-base:
     --Metrics.ExposePort=8645
 
 
+
 services:
+
+# -------------------------------------------------
+# Eth Nodes
+# -------------------------------------------------
+
   nethermind-lh:
     <<: *nethermind-base
     ports:
@@ -308,62 +316,11 @@ services:
       - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
       - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
       - ./data:/tmp/ethereum
-  
-  prometheus:
-    image: prom/prometheus:latest
-    init: true
-    volumes:
-      - ./prometheus/:/etc/prometheus/
-      - ./apps-data/.prometheus:/prometheus/data
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.listen-address=localhost:${PROMETHEUS_PORT}'
-      - '--storage.tsdb.retention.time=1y'
-      - '--enable-feature=remote-write-receiver'
-    network_mode: 'host'
-    restart: unless-stopped
-  
-  pushgateway:
-    image: prom/pushgateway
-    restart: unless-stopped
-    init: true
-    network_mode: 'host'
-    labels:
-      org.label-schema.group: "monitoring"
-  
-  node-exporter:
-    image: prom/node-exporter:latest
-    network_mode: host
-    command:
-      - '--path.rootfs=/host'
-    pid: host
-    restart: unless-stopped
-    volumes:
-      - '/:/host:ro,rslave'
 
-  grafana:
-    build: './grafana'
-    init: true
-    network_mode: 'host'
-    volumes:
-      - ./apps-data/grafana:/var/lib/grafana
-  
-  db:
-    image: postgres:14.1-alpine
-    restart: unless-stopped 
-    init: true
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes: 
-      - ./data/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
-      - ./apps-data/.postgres-data/:/var/lib/postgresql
-    networks: [ cluster ]
+# -------------------------------------------------
+# Additional Tools
+# -------------------------------------------------
 
-  
   vouch:
     image: vouch-tdahar:latest
     build:
@@ -394,7 +351,7 @@ services:
       --metrics=${LIVE_METRICS_METRICS}
     networks: [ cluster ]
     restart: unless-stopped
-
+  
   pool-metrics:
     image: alrevuelta/eth-metrics:latest
     container_name: eth-pool-metrics-${NETWORK}
@@ -409,6 +366,65 @@ services:
       --pool-name=/custom_pools/frankfurt-lighthouse.txt
     volumes:
       - ${POOL_METRICS_PUBKEYS_FOLDER}:/custom_pools/
+
+# -------------------------------------------------
+# Monitoring and Data Storage
+# -------------------------------------------------
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    network_mode: host
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+  
+  pushgateway:
+    image: prom/pushgateway
+    restart: unless-stopped
+    init: true
+    network_mode: 'host'
+    labels:
+      org.label-schema.group: "monitoring"
+
+  prometheus:
+    image: prom/prometheus:latest
+    init: true
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - ./apps-data/.prometheus:/prometheus/data
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.listen-address=localhost:${PROMETHEUS_PORT}'
+      - '--storage.tsdb.retention.time=1y'
+      - '--enable-feature=remote-write-receiver'
+    network_mode: 'host'
+    restart: unless-stopped
+  
+  grafana:
+    build: './grafana'
+    init: true
+    network_mode: 'host'
+    volumes:
+      - ./apps-data/grafana:/var/lib/grafana
+
+  db:
+    image: postgres:14.1-alpine
+    restart: unless-stopped 
+    init: true
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes: 
+      - ./data/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+      - ./apps-data/.postgres-data/:/var/lib/postgresql
+    networks: [ cluster ]
+
 
 networks:
   cluster:
