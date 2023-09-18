@@ -361,7 +361,7 @@ services:
     volumes: 
       - ./data/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
       - ./apps-data/.postgres-data/:/var/lib/postgresql
-    network_mode: 'host'
+    networks: [ cluster ]
 
   
   vouch:
@@ -370,7 +370,9 @@ services:
       context: ./.vouch/
       dockerfile: Dockerfile
     init: true
-    network_mode: 'host'
+    ports: 
+      - "127.0.0.1:8081:8081"
+    networks: [ cluster ]
     restart: always
     volumes: 
       - ./apps-data/.vouch/data:/app/logs
@@ -392,7 +394,7 @@ services:
       --metrics=${LIVE_METRICS_METRICS}
     network_mode: 'host'
     restart: unless-stopped
-          
+
   pool-metrics:
     image: alrevuelta/eth-metrics:latest
     container_name: eth-pool-metrics-${NETWORK}
