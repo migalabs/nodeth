@@ -392,7 +392,7 @@ services:
       --db-endpoint=${LIVE_METRICS_DB_ENDPOINT}
       --db-workers=${LIVE_METRICS_DB_WORKERS}
       --metrics=${LIVE_METRICS_METRICS}
-    network_mode: 'host'
+    networks: [ cluster ]
     restart: unless-stopped
 
   pool-metrics:
