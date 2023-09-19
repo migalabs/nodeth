@@ -365,7 +365,7 @@ services:
       --eth2address=${POOL_METRICS_CL_ENDPOINT}
       --pool-name=/custom_pools/frankfurt-lighthouse.txt
     volumes:
-      - ${POOL_METRICS_PUBKEYS_FOLDER}:/custom_pools/
+      - ${POOL_METRICS_PUBKEYS_FOLDER:-./}:/custom_pools/
 
 # -------------------------------------------------
 # Monitoring and Data Storage
