@@ -374,8 +374,10 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     network_mode: host
-    command:
-      - '--path.rootfs=/host'
+    command: >-
+      --path.rootfs=/host
+      --web.listen-address=localhost:9100
+
     pid: host
     restart: unless-stopped
     volumes:
