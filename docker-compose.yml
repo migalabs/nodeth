@@ -418,13 +418,16 @@ services:
       - '--enable-feature=remote-write-receiver'
     network_mode: 'host'
     restart: unless-stopped
-  
+    
   grafana:
-    build: './grafana'
+    image: grafana/grafana:10.1.0-ubuntu
     init: true
     network_mode: 'host'
     volumes:
       - ./apps-data/grafana:/var/lib/grafana
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL}
 
   db:
     image: postgres:14.1-alpine
