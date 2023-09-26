@@ -418,7 +418,18 @@ services:
       - '--enable-feature=remote-write-receiver'
     network_mode: 'host'
     restart: unless-stopped
-    
+  
+  # Reverse Proxy with Nginx
+  # ----------------------------------------------
+  # upstream grafana {
+  #   server ip:3000;
+  # }
+  # location /path {
+  #   rewrite  ^/path/(.*)  /$1 break;
+  #   proxy_set_header Host $http_host;
+  #   proxy_pass http://grafana;
+  # }
+  # ----------------------------------------------
   grafana:
     image: grafana/grafana:10.1.0-ubuntu
     init: true
