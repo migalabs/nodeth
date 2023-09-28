@@ -64,7 +64,7 @@ services:
       --logfile-debug-level=info
       --logfile=/root/.lighthouse/lighthouse.log
       beacon_node
-      --checkpoint-sync-url=https://mainnet.checkpoint.sigp.io 
+      --unsafe-and-dangerous-mode 
       --reconstruct-historic-states
       --eth1
       --http
