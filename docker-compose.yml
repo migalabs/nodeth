@@ -48,36 +48,36 @@ services:
   
   # One would not run lighthouse archival and lighthouse normal at the same time
   # Keep in mind this is experimental
-    lighthouse-archival:
-      image: sigp/lighthouse:${LIGHTHOUSE_ARCHIVAL_TAG}
-      restart: unless-stopped
-      init: true
-      networks: [ cluster ]
-      ports:
-        - "127.0.0.1:5054:5054" # Prometheus metrics
-        - "127.0.0.1:5052:5052" # Rest API port
-        - "9001:9000" # P2P port
-      command: >-
-        lighthouse
-        --network=${NETWORK}
-        --debug-level=info
-        --logfile-debug-level=info
-        --logfile=/root/.lighthouse/lighthouse.log
-        beacon_node
-        --checkpoint-sync-url=https://mainnet.checkpoint.sigp.io 
-        --reconstruct-historic-states
-        --eth1
-        --http
-        --metrics
-        --metrics-address=0.0.0.0
-        --http-address=0.0.0.0
-        --execution-endpoints=http://nethermind-lh:8551
-        --jwt-secrets=/tmp/ethereum/jwtsecret
-        --suggested-fee-recipient=${FEE_RECIPIENT}
+  lighthouse-archival:
+    image: sigp/lighthouse:${LIGHTHOUSE_ARCHIVAL_TAG}
+    restart: unless-stopped
+    init: true
+    networks: [ cluster ]
+    ports:
+      - "127.0.0.1:5054:5054" # Prometheus metrics
+      - "127.0.0.1:5052:5052" # Rest API port
+      - "9001:9000" # P2P port
+    command: >-
+      lighthouse
+      --network=${NETWORK}
+      --debug-level=info
+      --logfile-debug-level=info
+      --logfile=/root/.lighthouse/lighthouse.log
+      beacon_node
+      --checkpoint-sync-url=https://mainnet.checkpoint.sigp.io 
+      --reconstruct-historic-states
+      --eth1
+      --http
+      --metrics
+      --metrics-address=0.0.0.0
+      --http-address=0.0.0.0
+      --execution-endpoints=http://nethermind-lh:8551
+      --jwt-secrets=/tmp/ethereum/jwtsecret
+      --suggested-fee-recipient=${FEE_RECIPIENT}
 
-      volumes:
-        - ${LH_DATA_FOLDER}/.lighthouse-archival:/root/.lighthouse
-        - ./data:/tmp/ethereum
+    volumes:
+      - ${LH_DATA_FOLDER}/.lighthouse-archival:/root/.lighthouse
+      - ./data:/tmp/ethereum
 
 
   lighthouse:
