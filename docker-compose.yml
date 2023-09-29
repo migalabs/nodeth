@@ -18,8 +18,6 @@ x-nethermind-base:
     --JsonRpc.AdditionalRpcUrls=http://localhost:8551|http;wss|engine;eth;net;subscribe
     --JsonRpc.JwtSecretFile=/tmp/ethereum/jwtsecret
     --JsonRpc.Enabled=true
-    --Network.P2PPort=30303
-    --Network.DiscoveryPort=30303
     --HealthChecks.Enabled=true 
     --HealthChecks.UIEnabled=true
     --Metrics.Enabled=true
@@ -38,8 +36,10 @@ services:
     ports:
       - "127.0.0.1:8545:8545"    # JSON-RPC port
       - "127.0.0.1:8645:8645"    # Prometheus metrics port
-      - "30303:30303"  # P2P port
-
+      - "30303:30303"  # P2P port 
+    environment:
+      - NETHERMIND_NETWORKCONFIG_DISCOVERYPORT=30303
+      - NETHERMIND_NETWORKCONFIG_P2PPORT=30303
     volumes:
       - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
       - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/logs:/nethermind/logs
@@ -56,7 +56,7 @@ services:
     ports:
       - "127.0.0.1:5054:5054" # Prometheus metrics
       - "127.0.0.1:5052:5052" # Rest API port
-      - "9001:9000" # P2P port
+      - "9000:9000" # P2P port
     command: >-
       lighthouse
       --network=${NETWORK}
@@ -139,7 +139,10 @@ services:
     ports:
       - "127.0.0.1:8546:8545"    # JSON-RPC port
       - "127.0.0.1:8646:8645"    # Prometheus metrics port
-      - "30304:30303"  # P2P port
+      - "30304:30304"  # P2P port
+    environment:
+      - NETHERMIND_NETWORKCONFIG_DISCOVERYPORT=30304
+      - NETHERMIND_NETWORKCONFIG_P2PPORT=30304
 
     volumes:
       - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
@@ -155,7 +158,8 @@ services:
     ports:
       - "127.0.0.1:8080:8080" # Prometheus metrics
       - "127.0.0.1:3500:3500" # Rest API port
-      - "9000:9000" # P2P port
+      - "13000:13000" # P2P TCP port
+      - "12000:12000" # P2P UDP port
       - "127.0.0.1:4000:4000" # For Prysm val
     command: >-
       --accept-terms-of-use
@@ -196,7 +200,10 @@ services:
     ports:
       - "127.0.0.1:8547:8545"   # JSON-RPC port
       - "127.0.0.1:8647:8645"   # Prometheus metrics port
-      - "30305:30303" # P2P port
+      - "30305:30305" # P2P port
+    environment:
+      - NETHERMIND_NETWORKCONFIG_DISCOVERYPORT=30305
+      - NETHERMIND_NETWORKCONFIG_P2PPORT=30305
 
     volumes:
       - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
@@ -212,7 +219,7 @@ services:
     ports:
       - "127.0.0.1:8008:8008" # Prometheus metrics
       - "127.0.0.1:5051:5051" # Rest port
-      - "9002:9000" # P2P port
+      - "9002:9002" # P2P port
     command: >-
       --network=${NETWORK}
       --ee-endpoint=http://nethermind-teku:8551
@@ -224,6 +231,7 @@ services:
       --rest-api-interface=0.0.0.0
       --rest-api-host-allowlist=localhost, 127.0.0.1,teku-val,*
       --beacon-liveness-tracking-enabled=true
+      --p2p-port=9002
 
     volumes:
       - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
@@ -258,7 +266,10 @@ services:
     ports:
       - "127.0.0.1:8548:8545"   # JSON-RPC port
       - "127.0.0.1:8648:8645"   # Prometheus metrics port
-      - "30306:30303" # P2P port
+      - "30306:30306" # P2P port
+    environment:
+      - NETHERMIND_NETWORKCONFIG_DISCOVERYPORT=30306
+      - NETHERMIND_NETWORKCONFIG_P2PPORT=30306
 
     volumes:
       - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
@@ -274,7 +285,7 @@ services:
     ports:
       - "127.0.0.1:8009:8008" # Prometheus metrics
       - "127.0.0.1:5053:5052" # Rest Port
-      - "9003:9000" # P2P port
+      - "9003:9003" # P2P port
     command: >-
       --network=${NETWORK}
       --web3-url=http://nethermind-nimbus:8551
@@ -284,6 +295,8 @@ services:
       --suggested-fee-recipient=${FEE_RECIPIENT}
       --log-file=/home/user/.cache/nimbus/BeaconNode/nimbus.log
       --metrics-address=0.0.0.0
+      --tcp-port=9003 
+      --udp-port=9003
 
     volumes:
       - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
@@ -294,7 +307,10 @@ services:
     ports:
       - "127.0.0.1:8549:8545"   # JSON-RPC port
       - "127.0.0.1:8649:8645"   # Prometheus metrics port
-      - "30307:30303" # P2P port
+      - "30307:30307" # P2P port
+    environment:
+      - NETHERMIND_NETWORKCONFIG_DISCOVERYPORT=30307
+      - NETHERMIND_NETWORKCONFIG_P2PPORT=30307
 
     volumes:
       - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
@@ -310,7 +326,7 @@ services:
     ports:
       - "127.0.0.1:8010:8008" # Prometheus metrics
       - "127.0.0.1:9596:9596" # Rest port
-      - "9004:9000" # P2P port
+      - "9004:9004" # P2P port
     command: >-
       beacon
       --network=${NETWORK}
@@ -322,6 +338,8 @@ services:
       --metrics=true
       --metrics.address=0.0.0.0
       --rest.address=0.0.0.0
+      --port=9004
+      --listenAddress=0.0.0.0
 
     volumes:
       - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
