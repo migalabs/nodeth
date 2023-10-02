@@ -1,4 +1,4 @@
-# eth2-clients-setup
+# nodeth
 Repository to host setup files to run ethereum clients.
 This branch, setup/mainnet, is intended to have all the necessary preconfigurations to deploy all 5 CL clients in the mainnet network, plus some additional tools such as a fork of Vouch, a database and prometheus.
 
