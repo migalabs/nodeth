@@ -22,6 +22,11 @@ x-nethermind-base:
     --HealthChecks.UIEnabled=true
     --Metrics.Enabled=true
     --Metrics.ExposePort=8645
+  deploy:
+    resources:
+      limits:
+        cpus: ${NETHERMIND_MAX_CPU:-1}
+        memory: ${NETHERMIND_MAX_MEM:-16G}
 
 
 
