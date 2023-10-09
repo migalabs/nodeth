@@ -496,6 +496,29 @@ services:
     environment:
       - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL}
 
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - 3100:3100
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - cluster
+  
+  # Add this to any service to have it tracked
+  # labels:
+  #   logging: "promtail"
+  #   logging_jobname: "containerlogs"
+
+  promtail:
+    image:  grafana/promtail:latest
+    volumes:
+      - ./promtail/promtail.yaml:/etc/promtail/docker-config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/docker-config.yaml
+    networks:
+      - cluster
+
   db:
     image: postgres:14.1-alpine
     restart: unless-stopped 
