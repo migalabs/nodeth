@@ -1,5 +1,5 @@
 http:// {
-	log {
+        log {
                 output stderr
                 format filter {
                         wrap console
@@ -8,11 +8,23 @@ http:// {
                         }
                 }
         }
-
-        handle_path /beaconapi/* {
+        @beaconapi {
+                #remote_ip 0.0.0.0
+                path /beaconapi/*
+        }
+        handle @beaconapi {
                 reverse_proxy http://lighthouse-archival:5052
+                uri strip_prefix /beaconapi
         }
-		handle_path /elapi/* {
-                reverse_proxy http://nethermind-lh:8545
+
+		@elapi {
+                #remote_ip 0.0.0.0
+                path /elapi/*
         }
+        handle @beaconapi {
+                reverse_proxy http://lighthouse-archival:5052
+                uri strip_prefix /elapi
+        }
+
+
 }
