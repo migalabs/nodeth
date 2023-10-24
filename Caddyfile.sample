@@ -1,3 +1,7 @@
+(whitelistIP) {
+                remote_ip 0.0.0.0 1.1.1.1
+        }
+
 http:// {
         log {
                 output stderr
@@ -9,7 +13,7 @@ http:// {
                 }
         }
         @beaconapi {
-                #remote_ip 0.0.0.0
+                import whitelistIP
                 path /beaconapi/*
         }
         handle @beaconapi {
@@ -18,10 +22,10 @@ http:// {
         }
 
 		@elapi {
-                #remote_ip 0.0.0.0
+                import whitelistIP
                 path /elapi/*
         }
-        handle @beaconapi {
+        handle @elapi {
                 reverse_proxy http://lighthouse-archival:5052
                 uri strip_prefix /elapi
         }
