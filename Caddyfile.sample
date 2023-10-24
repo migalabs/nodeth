@@ -1,0 +1,18 @@
+http:// {
+	log {
+                output stderr
+                format filter {
+                        wrap console
+                        fields {
+                                request>headers>Authorization delete
+                        }
+                }
+        }
+
+        handle_path /beaconapi/* {
+                reverse_proxy http://lighthouse-archival:5052
+        }
+		handle_path /elapi/* {
+                reverse_proxy http://nethermind-lh:8545
+        }
+}

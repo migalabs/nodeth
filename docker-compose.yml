@@ -507,7 +507,18 @@ services:
       - ./data/init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
       - ./apps-data/.postgres-data/:/var/lib/postgresql
     networks: [ cluster ]
-
+  
+  caddy:
+    image: caddy:2.7.5
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./site:/srv
+      - ./caddy_data:/data
+      - ./caddy_config:/config
+    networks: [ cluster ]
+    ports:
+      - 80:80
 
 networks:
   cluster:
