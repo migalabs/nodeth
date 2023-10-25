@@ -1,6 +1,10 @@
 (whitelistIP) {
-                remote_ip 0.0.0.0 1.1.1.1
+                remote_ip 0.0.0.0/0
         }
+
+# Access to everything.
+(authorised-users) {
+}
 
 http:// {
         log {
@@ -12,23 +16,43 @@ http:// {
                         }
                 }
         }
+		# ------------------------- Beacon API --------------------------
         @beaconapi {
                 import whitelistIP
                 path /beaconapi/*
         }
+		basicauth @beaconapi {
+			import authorised-users
+		}
         handle @beaconapi {
-                reverse_proxy http://lighthouse-archival:5052
+                reverse_proxy http://localhost:5052
                 uri strip_prefix /beaconapi
         }
 
+
+		# ------------------------- Execution API --------------------------
 		@elapi {
                 import whitelistIP
                 path /elapi/*
         }
         handle @elapi {
-                reverse_proxy http://nethermind-lh:8545
+                reverse_proxy http://localhost:8545
                 uri strip_prefix /elapi
         }
+		basicauth @elapi {
+			import authorised-users
+		}
 
-
+		# ------------------------- Prometheus --------------------------
+		@prometheus {
+                import whitelistIP
+                path /promhttp/*
+        }
+        handle @prometheus {
+                reverse_proxy http://localhost:9090
+                uri strip_prefix /promhttp
+        }
+		basicauth @prometheus {
+			import authorised-users
+		}
 }

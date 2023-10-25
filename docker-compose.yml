@@ -516,9 +516,7 @@ services:
       - ./site:/srv
       - ./caddy_data:/data
       - ./caddy_config:/config
-    networks: [ cluster ]
-    ports:
-      - 80:80
+    network_mode: 'host'
 
 networks:
   cluster:
