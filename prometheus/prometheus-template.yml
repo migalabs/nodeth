@@ -123,6 +123,10 @@ scrape_configs:
   - job_name: 'pool-metrics'
     static_configs:
       - targets: ['localhost:9500']
+
+  - job_name: 'caddy'
+    static_configs:
+      - targets: ['localhost:2019']
   
   - job_name: blackbox-http # To get metrics about the exporter’s targets
     metrics_path: /probe

@@ -1,3 +1,9 @@
+{
+    servers {
+        metrics
+    }
+}
+
 (whitelistIP) {
                 remote_ip 0.0.0.0/0
         }
