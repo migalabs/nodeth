@@ -69,6 +69,7 @@ services:
       --logfile-debug-level=info
       --logfile=/root/.lighthouse/lighthouse.log
       beacon_node
+      --checkpoint-sync-url=${CHECKPOINT_SYNC_URL}
       --unsafe-and-dangerous-mode 
       --reconstruct-historic-states
       --eth1
@@ -101,6 +102,7 @@ services:
       --logfile-debug-level=info
       --logfile=/root/.lighthouse/lighthouse.log
       beacon_node
+      --checkpoint-sync-url=${CHECKPOINT_SYNC_URL}
       --slots-per-restore-point=${SLOTS_PER_RESTORE_POINT:-8192}
       --eth1
       --http
@@ -169,6 +171,7 @@ services:
     command: >-
       --accept-terms-of-use
       --${NETWORK}
+      --checkpoint-sync-url=${CHECKPOINT_SYNC_URL}
       --suggested-fee-recipient=${FEE_RECIPIENT}
       --execution-endpoint=http://nethermind-prysm:8551
       --monitoring-host=0.0.0.0
@@ -221,12 +224,14 @@ services:
     restart: unless-stopped
     init: true
     networks: [ cluster ]
+    user: ${UID}:${GID}
     ports:
       - "127.0.0.1:8008:8008" # Prometheus metrics
       - "127.0.0.1:5051:5051" # Rest port
       - "9002:9002" # P2P port
     command: >-
       --network=${NETWORK}
+      --checkpoint-sync-url=${CHECKPOINT_SYNC_URL}
       --ee-endpoint=http://nethermind-teku:8551
       --ee-jwt-secret-file=/tmp/ethereum/jwtsecret
       --validators-proposer-default-fee-recipient=${FEE_RECIPIENT}
@@ -282,10 +287,25 @@ services:
       - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/keystore:/nethermind/keystore
       - ./data:/tmp/ethereum
 
+  nimbus-trusted-sync:
+    image: statusim/nimbus-eth2:${NIMBUS_TAG}
+    restart: unless-stopped
+    init: true
+    user: ${UID}:${GID}
+    networks: [ cluster ]
+    command: >-
+      --network=${NETWORK}
+      trustedNodeSync
+      --trusted-node-url="${CHECKPOINT_SYNC_URL}"
+    volumes:
+      - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
+      - ./data:/tmp/ethereum
+
   nimbus:
     image: statusim/nimbus-eth2:${NIMBUS_TAG}
     restart: unless-stopped
     init: true
+    user: ${UID}:${GID}
     networks: [ cluster ]
     ports:
       - "127.0.0.1:8009:8008" # Prometheus metrics
@@ -335,6 +355,7 @@ services:
     command: >-
       beacon
       --network=${NETWORK}
+      --checkpointSyncUrl=${CHECKPOINT_SYNC_URL}
       --execution.urls="http://nethermind-lodestar:8551"
       --network.connectToDiscv5Bootnodes
       --suggestedFeeRecipient=${FEE_RECIPIENT}
