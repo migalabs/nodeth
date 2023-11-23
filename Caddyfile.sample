@@ -13,6 +13,7 @@
 }
 
 http:// {
+		# tls /certs/cert.pem /certs/key.pem
         log {
                 output stderr
                 format filter {

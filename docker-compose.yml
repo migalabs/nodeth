@@ -539,6 +539,7 @@ services:
       - ./site:/srv
       - ./caddy_data:/data
       - ./caddy_config:/config
+      - ./certs:/certs
     network_mode: 'host'
 
 networks:
