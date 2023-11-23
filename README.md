@@ -37,14 +37,8 @@ As for Teku, ownership is also important, but permissions must be ensured so the
 
 ## Checkpoint Sync
 
-You may start by checkpoint syncing your CL client.\
-You can do this by executing:
-
-```
-./checkpoint_sync/chk_<client>.sh <https://remote_node:port>
-```
-
-Yoy may only run this for a few minutes until the client has downloaded the latest checkpoint, after that you can stop with Ctrl+C.
+Default sync method is to Checkpoint Sync from a trusted node.
+In case of Nimbus, please first use service `nimbus-trusted-sync`. The service will stop automatically and you can now run `nimbus` service.
 
 ## Import keys
 
@@ -121,10 +115,6 @@ sudo docker-compose --env-file .env up -d prometheus
 ```
 
 Prometheus configuration includes all 5 EL+CL combos monitoring.
-
-# Errors
-
-You might encounter some issues when running nimbus and teku docker containers. This is usually due to folder permissions. Simply change the owner of the nimbus or teku data folder to the same running the container (folders are originally created as root). After that, container should run without issues.
 
 
 
