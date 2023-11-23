@@ -62,6 +62,7 @@ services:
       - "127.0.0.1:5054:5054" # Prometheus metrics
       - "127.0.0.1:5052:5052" # Rest API port
       - "9000:9000" # P2P port
+      - "9001:9001" # QUIC port
     command: >-
       lighthouse
       --network=${NETWORK}
@@ -94,7 +95,8 @@ services:
     ports:
       - "127.0.0.1:5054:5054" # Prometheus metrics
       - "127.0.0.1:5052:5052" # Rest API port
-      - "9001:9000" # P2P port
+      - "9000:9000" # P2P port
+      - "9001:9001" # QUIC port
     command: >-
       lighthouse
       --network=${NETWORK}
