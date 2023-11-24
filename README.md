@@ -117,4 +117,17 @@ sudo docker-compose --env-file .env up -d prometheus
 Prometheus configuration includes all 5 EL+CL combos monitoring.
 
 
+# Caddy (Reverse Proxy)
 
+You may run Caddy to expose all your endpoints with whitelisted IPs and authorized users.
+Please move to the `certs` folder and execute the script to generate your self-signed certificate.
+You will also need to uncomment the tls clause in the Caddyfile.
+
+# Common Errors
+
+Prometheus may fail to boot as it may not have wnough permissions in the given folder.
+To fix it, simply stop the prometheus service and run the following command:
+
+` sudo chown -R nobody:nogroup apps-data/.prometheus`
+
+Then start the service again.
