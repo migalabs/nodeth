@@ -46,9 +46,9 @@ services:
       - NETHERMIND_NETWORKCONFIG_DISCOVERYPORT=30303
       - NETHERMIND_NETWORKCONFIG_P2PPORT=30303
     volumes:
-      - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
-      - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/logs:/nethermind/logs
-      - ${NETH_LH_DATA_FOLDER}/.nethermind-lh/keystore:/nethermind/keystore
+      - ${NETH_LH_DATA_FOLDER:-./apps-data}/.nethermind-lh/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_LH_DATA_FOLDER:-./apps-data}/.nethermind-lh/logs:/nethermind/logs
+      - ${NETH_LH_DATA_FOLDER:-./apps-data}/.nethermind-lh/keystore:/nethermind/keystore
       - ./data:/tmp/ethereum
   
   # One would not run lighthouse archival and lighthouse normal at the same time
@@ -83,7 +83,7 @@ services:
       --suggested-fee-recipient=${FEE_RECIPIENT}
 
     volumes:
-      - ${LH_DATA_FOLDER}/.lighthouse-archival:/root/.lighthouse
+      - ${LH_DATA_FOLDER:-./apps-data}/.lighthouse-archival:/root/.lighthouse
       - ./data:/tmp/ethereum
 
 
@@ -116,7 +116,7 @@ services:
       --suggested-fee-recipient=${FEE_RECIPIENT}
 
     volumes:
-      - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
+      - ${LH_DATA_FOLDER:-./apps-data}/.lighthouse:/root/.lighthouse
       - ./data:/tmp/ethereum
   
   lighthouse-val:
@@ -141,7 +141,7 @@ services:
       --graffiti="Lighthouse"
 
     volumes:
-      - ${LH_DATA_FOLDER}/.lighthouse:/root/.lighthouse
+      - ${LH_DATA_FOLDER:-./apps-data}/.lighthouse:/root/.lighthouse
 
   nethermind-prysm:
     <<: *nethermind-base
@@ -154,9 +154,9 @@ services:
       - NETHERMIND_NETWORKCONFIG_P2PPORT=30304
 
     volumes:
-      - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
-      - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/logs:/nethermind/logs
-      - ${NETH_PRYSM_DATA_FOLDER}/.nethermind-prysm/keystore:/nethermind/keystore
+      - ${NETH_PRYSM_DATA_FOLDER:-./apps-data}/.nethermind-prysm/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_PRYSM_DATA_FOLDER:-./apps-data}/.nethermind-prysm/logs:/nethermind/logs
+      - ${NETH_PRYSM_DATA_FOLDER:-./apps-data}/.nethermind-prysm/keystore:/nethermind/keystore
       - ./data:/tmp/ethereum
 
   prysm:
@@ -181,7 +181,7 @@ services:
       --jwt-secret=/tmp/ethereum/jwtsecret
       --log-file=/home/.eth2/prysm.log
     volumes:
-      - ${PRYSM_DATA_FOLDER}/.prysm:/home/.eth2/
+      - ${PRYSM_DATA_FOLDER:-./apps-data}/.prysm:/home/.eth2/
       - ./data:/tmp/ethereum
   
   prysm-val:
@@ -201,9 +201,9 @@ services:
       --graffiti="Prysm"
     volumes:
       - ${VALIDATOR_KEYS_FOLDER}/prysm/secret.txt:/secret.txt
-      - ${PRYSM_DATA_FOLDER}/.prysm-val/wallet:/wallet
-      - ${PRYSM_DATA_FOLDER}/.prysm-val/db:/validatorDB
-      - ${PRYSM_DATA_FOLDER}/.prysm-val/log/:/prysm-log
+      - ${PRYSM_DATA_FOLDER:-./apps-data}/.prysm-val/wallet:/wallet
+      - ${PRYSM_DATA_FOLDER:-./apps-data}/.prysm-val/db:/validatorDB
+      - ${PRYSM_DATA_FOLDER:-./apps-data}/.prysm-val/log/:/prysm-log
   
   nethermind-teku:
     <<: *nethermind-base
@@ -216,9 +216,9 @@ services:
       - NETHERMIND_NETWORKCONFIG_P2PPORT=30305
 
     volumes:
-      - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
-      - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/logs:/nethermind/logs
-      - ${NETH_TEKU_DATA_FOLDER}/.nethermind-teku/keystore:/nethermind/keystore
+      - ${NETH_TEKU_DATA_FOLDER:-./apps-data}/.nethermind-teku/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_TEKU_DATA_FOLDER:-./apps-data}/.nethermind-teku/logs:/nethermind/logs
+      - ${NETH_TEKU_DATA_FOLDER:-./apps-data}/.nethermind-teku/keystore:/nethermind/keystore
       - ./data:/tmp/ethereum
 
   teku:
@@ -246,7 +246,7 @@ services:
       --p2p-port=9002
 
     volumes:
-      - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
+      - ${TEKU_DATA_FOLDER:-./apps-data}/.teku:/opt/teku/.local/share/teku/
       - ./data:/tmp/ethereum
     # Check teku host directory permissions as it throws an error(777)
   
@@ -268,8 +268,8 @@ services:
       --doppelganger-detection-enabled=true
     
     volumes:
-      - ${TEKU_DATA_FOLDER}/.teku-val:/validator
-      - ${TEKU_DATA_FOLDER}/.teku:/opt/teku/.local/share/teku/
+      - ${TEKU_DATA_FOLDER:-./apps-data}/.teku-val:/validator
+      - ${TEKU_DATA_FOLDER:-./apps-data}/.teku:/opt/teku/.local/share/teku/
     # Check teku host directory permissions as it throws an error(777)
     # Metrics on 8008
 
@@ -284,9 +284,9 @@ services:
       - NETHERMIND_NETWORKCONFIG_P2PPORT=30306
 
     volumes:
-      - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
-      - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/logs:/nethermind/logs
-      - ${NETH_NIMBUS_DATA_FOLDER}/.nethermind-nimbus/keystore:/nethermind/keystore
+      - ${NETH_NIMBUS_DATA_FOLDER:-./apps-data}/.nethermind-nimbus/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_NIMBUS_DATA_FOLDER:-./apps-data}/.nethermind-nimbus/logs:/nethermind/logs
+      - ${NETH_NIMBUS_DATA_FOLDER:-./apps-data}/.nethermind-nimbus/keystore:/nethermind/keystore
       - ./data:/tmp/ethereum
 
   nimbus-trusted-sync:
@@ -300,7 +300,7 @@ services:
       trustedNodeSync
       --trusted-node-url="${CHECKPOINT_SYNC_URL}"
     volumes:
-      - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
+      - ${NIMBUS_DATA_FOLDER:-./apps-data}/.nimbus:/home/user/.cache/nimbus/BeaconNode
       - ./data:/tmp/ethereum
 
   nimbus:
@@ -326,7 +326,7 @@ services:
       --udp-port=9003
 
     volumes:
-      - ${NIMBUS_DATA_FOLDER}/.nimbus:/home/user/.cache/nimbus/BeaconNode
+      - ${NIMBUS_DATA_FOLDER:-./apps-data}/.nimbus:/home/user/.cache/nimbus/BeaconNode
       - ./data:/tmp/ethereum
 
   nethermind-lodestar:
@@ -340,9 +340,9 @@ services:
       - NETHERMIND_NETWORKCONFIG_P2PPORT=30307
 
     volumes:
-      - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
-      - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/logs:/nethermind/logs
-      - ${NETH_LODESTAR_DATA_FOLDER}/.nethermind-lodestar/keystore:/nethermind/keystore
+      - ${NETH_LODESTAR_DATA_FOLDER:-./apps-data}/.nethermind-lodestar/nethermind_db:/nethermind/nethermind_db
+      - ${NETH_LODESTAR_DATA_FOLDER:-./apps-data}/.nethermind-lodestar/logs:/nethermind/logs
+      - ${NETH_LODESTAR_DATA_FOLDER:-./apps-data}/.nethermind-lodestar/keystore:/nethermind/keystore
       - ./data:/tmp/ethereum
 
   lodestar:
@@ -370,7 +370,7 @@ services:
       --listenAddress=0.0.0.0
 
     volumes:
-      - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
+      - ${LODESTAR_DATA_FOLDER:-./apps-data}/.lodestar:/root/.local/share/lodestar
       - ./data:/tmp/ethereum
   
   lodestar-val:
@@ -393,8 +393,8 @@ services:
       --logFile=/root/.local/share/lodestar/lodestar-val.log
 
     volumes:
-      - ${LODESTAR_DATA_FOLDER}/.lodestar-val:/validator
-      - ${LODESTAR_DATA_FOLDER}/.lodestar:/root/.local/share/lodestar
+      - ${LODESTAR_DATA_FOLDER:-./apps-data}/.lodestar-val:/validator
+      - ${LODESTAR_DATA_FOLDER:-./apps-data}/.lodestar:/root/.local/share/lodestar
       - ./data:/tmp/ethereum
 
 # -------------------------------------------------
