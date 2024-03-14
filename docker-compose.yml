@@ -61,13 +61,13 @@ services:
       - "9001:9001" # QUIC port
     command: >-
       lighthouse
-      --network=${NETWORK:-mainnet}
+      --network=$${NETWORK:-mainnet}
       --debug-level=info
       --logfile-debug-level=info
       --logfile=/root/.lighthouse/lighthouse.log
       beacon_node
       --datadir /var/lib/lighthouse
-      --checkpoint-sync-url=${CHECKPOINT_SYNC_URL:-}
+      --checkpoint-sync-url=$${CHECKPOINT_SYNC_URL:-}
       --unsafe-and-dangerous-mode 
       --reconstruct-historic-states
       --eth1
@@ -75,10 +75,10 @@ services:
       --metrics
       --metrics-address=0.0.0.0
       --http-address=0.0.0.0
-      --port=${P2P_PORT:9000}
+      --port=$${P2P_PORT:9000}
       --execution-endpoints=http://nethermind:8551
       --jwt-secrets=/var/lib/jwtsecret
-      --suggested-fee-recipient=${FEE_RECIPIENT:-}
+      --suggested-fee-recipient=$${FEE_RECIPIENT:-}
 
     volumes:
       - ${DATA_FOLDER:-./data}/.lighthouse-archival:/var/lib/lighthouse
@@ -97,23 +97,23 @@ services:
       - "9001:9001" # QUIC port
     command: >-
       lighthouse
-      --network=${NETWORK:-mainnet}
+      --network=$${NETWORK:-mainnet}
       --debug-level=info
       --logfile-debug-level=info
       --logfile=/root/.lighthouse/lighthouse.log
       beacon_node
       --datadir /var/lib/lighthouse
-      --checkpoint-sync-url=${CHECKPOINT_SYNC_URL:-}
-      --slots-per-restore-point=${SLOTS_PER_RESTORE_POINT:-8192}
+      --checkpoint-sync-url=$${CHECKPOINT_SYNC_URL:-}
+      --slots-per-restore-point=$${SLOTS_PER_RESTORE_POINT:-8192}
       --eth1
       --http
       --metrics
       --metrics-address=0.0.0.0
       --http-address=0.0.0.0
-      --port=${P2P_PORT:9000}
+      --port=$${P2P_PORT:9000}
       --execution-endpoints=http://nethermind:8551
       --jwt-secrets=/var/lib/jwtsecret
-      --suggested-fee-recipient=${FEE_RECIPIENT}
+      --suggested-fee-recipient=$${FEE_RECIPIENT}
 
     volumes:
       - ${DATA_FOLDER:-./data}/.lighthouse-archival:/var/lib/lighthouse
@@ -214,7 +214,7 @@ services:
       --udp-port=${P2P_PORT:-9000}
 
     volumes:
-      - ${DATA_FOLDER:-./data}/.nimbus:/var/lib/jwtsecret
+      - ${DATA_FOLDER:-./data}/.nimbus:/var/lib/nimbus_beacon
       - ./data/jwt:/var/lib/jwtsecret
 
   lodestar:
