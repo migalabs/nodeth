@@ -15,13 +15,17 @@ services:
     restart: unless-stopped
     init: true
     networks: [ cluster ]
+    ports:
+      - "127.0.0.1:8545:8545" # JSON-RPC
+      - "127.0.0.1:8645:8645" # JSON-RPC
     command: >-
       --config=${NETWORK:-mainnet}
+      --datadir=/var/lib/nethermind
       --JsonRpc.Port=8545
       --JsonRpc.Host=0.0.0.0
       --JsonRpc.EnginePort=8551
       --JsonRpc.EngineHost=0.0.0.0
-      --JsonRpc.JwtSecretFile="/var/lib/jwtsecret"
+      --JsonRpc.JwtSecretFile="/jwt/jwtsecret"
       --JsonRpc.Enabled=true
       --HealthChecks.Enabled=true 
       --HealthChecks.UIEnabled=true
@@ -31,7 +35,7 @@ services:
       - DOTNET_BUNDLE_EXTRACT_BASE_DIR=/var/lib/nethermind
     volumes:
       - ${DATA_FOLDER:-./data}/.nethermind:/var/lib/nethermind
-      - ./data/jwt:/var/lib/jwtsecret
+      - ./data/jwt:/jwt
     deploy:
       resources:
         limits:
@@ -61,13 +65,13 @@ services:
       - "9001:9001" # QUIC port
     command: >-
       lighthouse
-      --network=$${NETWORK:-mainnet}
+      --network="${NETWORK:-mainnet}"
       --debug-level=info
       --logfile-debug-level=info
-      --logfile=/root/.lighthouse/lighthouse.log
+      --logfile=/var/lib/lighthouse/lighthouse.log
       beacon_node
       --datadir /var/lib/lighthouse
-      --checkpoint-sync-url=$${CHECKPOINT_SYNC_URL:-}
+      --checkpoint-sync-url="${CHECKPOINT_SYNC_URL:-}"
       --unsafe-and-dangerous-mode 
       --reconstruct-historic-states
       --eth1
@@ -75,14 +79,14 @@ services:
       --metrics
       --metrics-address=0.0.0.0
       --http-address=0.0.0.0
-      --port=$${P2P_PORT:9000}
+      --port="${P2P_PORT:-9000}"
       --execution-endpoints=http://nethermind:8551
-      --jwt-secrets=/var/lib/jwtsecret
-      --suggested-fee-recipient=$${FEE_RECIPIENT:-}
+      --jwt-secrets=/jwt/jwtsecret
+      --suggested-fee-recipient="${FEE_RECIPIENT:-}"
 
     volumes:
       - ${DATA_FOLDER:-./data}/.lighthouse-archival:/var/lib/lighthouse
-      - ./data/jwt:/var/lib/jwtsecret
+      - ./data/jwt:/jwt
 
 
   lighthouse:
@@ -97,27 +101,27 @@ services:
       - "9001:9001" # QUIC port
     command: >-
       lighthouse
-      --network=$${NETWORK:-mainnet}
+      --network="${NETWORK:-mainnet}"
       --debug-level=info
       --logfile-debug-level=info
-      --logfile=/root/.lighthouse/lighthouse.log
+      --logfile=/var/lib/lighthouse/lighthouse.log
       beacon_node
       --datadir /var/lib/lighthouse
-      --checkpoint-sync-url=$${CHECKPOINT_SYNC_URL:-}
-      --slots-per-restore-point=$${SLOTS_PER_RESTORE_POINT:-8192}
+      --checkpoint-sync-url="${CHECKPOINT_SYNC_URL:-}"
+      --slots-per-restore-point="${SLOTS_PER_RESTORE_POINT:-8192}"
       --eth1
       --http
       --metrics
       --metrics-address=0.0.0.0
       --http-address=0.0.0.0
-      --port=$${P2P_PORT:9000}
+      --port="{P2P_PORT:-9000}"
       --execution-endpoints=http://nethermind:8551
-      --jwt-secrets=/var/lib/jwtsecret
-      --suggested-fee-recipient=$${FEE_RECIPIENT}
+      --jwt-secrets=/jwt/jwtsecret
+      --suggested-fee-recipient="${FEE_RECIPIENT}"
 
     volumes:
       - ${DATA_FOLDER:-./data}/.lighthouse-archival:/var/lib/lighthouse
-      - ./data/jwt:/var/lib/jwtsecret
+      - ./data/jwt:/jwt
 
   prysm:
     image: gcr.io/prysmaticlabs/prysm/beacon-chain:${PRYSM_TAG:-}
@@ -140,11 +144,11 @@ services:
       --monitoring-host=0.0.0.0
       --rpc-host=0.0.0.0
       --p2p-tcp-port=${P2P_PORT:-13000}
-      --jwt-secret=/var/lib/jwtsecret
+      --jwt-secret=/jwt/jwtsecret
       --log-file=/var/lib/prysm/prysm.log
     volumes:
       - ${DATA_FOLDER:-./data}/.prysm:/var/lib/prysm
-      - ./data/jwt:/var/lib/jwtsecret
+      - ./data/jwt:/jwt
 
   teku:
     image: consensys/teku:${TEKU_TAG:-}
@@ -161,7 +165,7 @@ services:
       --data-path=/var/lib/teku_beacon
       --checkpoint-sync-url=${CHECKPOINT_SYNC_URL:-}
       --ee-endpoint=http://nethermind:8551
-      --ee-jwt-secret-file=/var/lib/jwtsecret
+      --ee-jwt-secret-file=/jwt/jwtsecret
       --validators-proposer-default-fee-recipient=${FEE_RECIPIENT:-}
       --metrics-enabled=true
       --metrics-interface=0.0.0.0
@@ -173,7 +177,7 @@ services:
 
     volumes:
       - ${DATA_FOLDER:-./data}/.teku:/var/lib/teku_beacon
-      - ./data/jwt:/var/lib/jwtsecret
+      - ./data/jwt:/jwt
     # Check teku host directory permissions as it throws an error(777)
 
   nimbus-trusted-sync:
@@ -189,7 +193,6 @@ services:
       --data-dir=/var/lib/nimbus_beacon
     volumes:
       - ${DATA_FOLDER:-./data}/.nimbus:/var/lib/nimbus_beacon
-      - ./data/jwt:/var/lib/jwtsecret
 
   nimbus:
     image: statusim/nimbus-eth2:${NIMBUS_TAG:-}
@@ -206,7 +209,7 @@ services:
       --web3-url=http://nethermind:8551
       --rest
       --metrics
-      --jwt-secret=/var/lib/jwtsecret
+      --jwt-secret=/jwt/jwtsecret
       --suggested-fee-recipient=${FEE_RECIPIENT:-}
       --log-file=/var/lib/jwtsecret/nimbus.log
       --metrics-address=0.0.0.0
@@ -215,7 +218,7 @@ services:
 
     volumes:
       - ${DATA_FOLDER:-./data}/.nimbus:/var/lib/nimbus_beacon
-      - ./data/jwt:/var/lib/jwtsecret
+      - ./data/jwt:/jwt
 
   lodestar:
     image: chainsafe/lodestar:${LODESTAR_TAG:-}
@@ -234,7 +237,7 @@ services:
       --execution.urls="http://nethermind:8551"
       --network.connectToDiscv5Bootnodes
       --suggestedFeeRecipient=${FEE_RECIPIENT:-}
-      --jwt-secret="/tmp/ethereum/jwtsecret"
+      --jwt-secret="/jwt/jwtsecret"
       --logFile=/var/lib/lodestar_beacon/lodestar.log
       --metrics=true
       --metrics.address=0.0.0.0
@@ -244,7 +247,7 @@ services:
 
     volumes:
       - ${DATA_FOLDER:-./data}/.lodestar:/var/lib/lodestar_beacon
-      - ./data/jwt:/var/lib/jwtsecret
+      - ./data/jwt:/jwt
 
 #   __  __             _ _             _             
 #  |  \/  |           (_) |           (_)            
