@@ -65,13 +65,11 @@ services:
       lighthouse
       --network="${NETWORK:-mainnet}"
       --debug-level=info
-      --logfile-debug-level=info
-      --logfile=/var/lib/lighthouse/lighthouse.log
       beacon_node
       --datadir /var/lib/lighthouse
       --checkpoint-sync-url="${CHECKPOINT_SYNC_URL:-}"
-      --unsafe-and-dangerous-mode 
       --reconstruct-historic-states
+      --disable-backfill-rate-limiting
       --eth1
       --http
       --metrics
@@ -100,12 +98,11 @@ services:
       lighthouse
       --network="${NETWORK:-mainnet}"
       --debug-level=info
-      --logfile-debug-level=info
-      --logfile=/var/lib/lighthouse/lighthouse.log
       beacon_node
       --datadir /var/lib/lighthouse
       --checkpoint-sync-url="${CHECKPOINT_SYNC_URL:-}"
       --slots-per-restore-point="${SLOTS_PER_RESTORE_POINT:-8192}"
+      --disable-backfill-rate-limiting
       --eth1
       --http
       --metrics
