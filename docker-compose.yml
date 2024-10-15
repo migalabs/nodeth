@@ -261,11 +261,12 @@ services:
     command: >-
       --path.rootfs=/host
       --web.listen-address=localhost:9100
-
+      --collector.textfile.directory=/textfiles
     pid: host
     restart: unless-stopped
     volumes:
       - "/:/host:ro,rslave"
+      - ./apps-data/.node_exporter/textfiles:/textfiles/
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
