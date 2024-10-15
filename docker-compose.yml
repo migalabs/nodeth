@@ -1,20 +1,19 @@
-version: '3.7'
+version: "3.7"
 
 services:
-
-#  ______                     _   _             
-# |  ____|                   | | (_)            
-# | |__  __  _____  ___ _   _| |_ _  ___  _ __  
-# |  __| \ \/ / _ \/ __| | | | __| |/ _ \| '_ \ 
-# | |____ >  <  __/ (__| |_| | |_| | (_) | | | |
-# |______/_/\_\___|\___|\__,_|\__|_|\___/|_| |_|
-#
+  #  ______                     _   _
+  # |  ____|                   | | (_)
+  # | |__  __  _____  ___ _   _| |_ _  ___  _ __
+  # |  __| \ \/ / _ \/ __| | | | __| |/ _ \| '_ \
+  # | |____ >  <  __/ (__| |_| | |_| | (_) | | | |
+  # |______/_/\_\___|\___|\__,_|\__|_|\___/|_| |_|
+  #
 
   nethermind:
     image: nethermind/nethermind:${NETHERMIND_VERSION:-}
     restart: unless-stopped
     init: true
-    networks: [ cluster ]
+    networks: [cluster]
     ports:
       - "127.0.0.1:8545:8545" # JSON-RPC
       - "127.0.0.1:8645:8645" # JSON-RPC
@@ -42,22 +41,21 @@ services:
           cpus: ${NETHERMIND_MAX_CPU:-1}
           memory: ${NETHERMIND_MAX_MEM:-16G}
 
-#   _____                                         
-#  / ____|                                        
-# | |     ___  _ __  ___  ___ _ __  ___ _   _ ___ 
-# | |    / _ \| '_ \/ __|/ _ \ '_ \/ __| | | / __|
-# | |___| (_) | | | \__ \  __/ | | \__ \ |_| \__ \
-#  \_____\___/|_| |_|___/\___|_| |_|___/\__,_|___/
-#
+  #   _____
+  #  / ____|
+  # | |     ___  _ __  ___  ___ _ __  ___ _   _ ___
+  # | |    / _ \| '_ \/ __|/ _ \ '_ \/ __| | | / __|
+  # | |___| (_) | | | \__ \  __/ | | \__ \ |_| \__ \
+  #  \_____\___/|_| |_|___/\___|_| |_|___/\__,_|___/
+  #
 
-  
   # One would not run lighthouse archival and lighthouse normal at the same time
   # Keep in mind this is experimental
   lighthouse-archival:
     image: sigp/lighthouse:${LIGHTHOUSE_ARCHIVAL_TAG:-}
     restart: unless-stopped
     init: true
-    networks: [ cluster ]
+    networks: [cluster]
     ports:
       - "127.0.0.1:5054:5054" # Prometheus metrics
       - "127.0.0.1:5052:5052" # Rest API port
@@ -88,12 +86,11 @@ services:
       - ${DATA_FOLDER:-./data}/.lighthouse-archival:/var/lib/lighthouse
       - ./data/jwt:/jwt
 
-
   lighthouse:
     image: sigp/lighthouse:${LIGHTHOUSE_TAG:-}
     restart: unless-stopped
     init: true
-    networks: [ cluster ]
+    networks: [cluster]
     ports:
       - "127.0.0.1:5054:5054" # Prometheus metrics
       - "127.0.0.1:5052:5052" # Rest API port
@@ -127,7 +124,7 @@ services:
     image: gcr.io/prysmaticlabs/prysm/beacon-chain:${PRYSM_TAG:-}
     restart: unless-stopped
     init: true
-    networks: [ cluster ]
+    networks: [cluster]
     ports:
       - "127.0.0.1:8080:8080" # Prometheus metrics
       - "127.0.0.1:3500:3500" # Rest API port
@@ -154,7 +151,7 @@ services:
     image: consensys/teku:${TEKU_TAG:-}
     restart: unless-stopped
     init: true
-    networks: [ cluster ]
+    networks: [cluster]
     user: ${UID}:${GID}
     ports:
       - "127.0.0.1:8008:8008" # Prometheus metrics
@@ -182,10 +179,10 @@ services:
 
   nimbus-trusted-sync:
     image: statusim/nimbus-eth2:${NIMBUS_TAG:-}
-    restart: 'no'
+    restart: "no"
     init: true
     user: ${UID}:${GID}
-    networks: [ cluster ]
+    networks: [cluster]
     command: >-
       --network=${NETWORK:-}
       trustedNodeSync
@@ -199,7 +196,7 @@ services:
     restart: unless-stopped
     init: true
     user: ${UID}:${GID}
-    networks: [ cluster ]
+    networks: [cluster]
     ports:
       - "127.0.0.1:8009:8008" # Prometheus metrics
       - "127.0.0.1:5053:5052" # Rest Port
@@ -224,7 +221,7 @@ services:
     image: chainsafe/lodestar:${LODESTAR_TAG:-}
     restart: unless-stopped
     init: true
-    networks: [ cluster ]
+    networks: [cluster]
     ports:
       - "127.0.0.1:8010:8008" # Prometheus metrics
       - "127.0.0.1:9596:9596" # Rest port
@@ -249,15 +246,14 @@ services:
       - ${DATA_FOLDER:-./data}/.lodestar:/var/lib/lodestar_beacon
       - ./data/jwt:/jwt
 
-#   __  __             _ _             _             
-#  |  \/  |           (_) |           (_)            
-#  | \  / | ___  _ __  _| |_ ___  _ __ _ _ __   __ _ 
-#  | |\/| |/ _ \| '_ \| | __/ _ \| '__| | '_ \ / _` |
-#  | |  | | (_) | | | | | || (_) | |  | | | | | (_| |
-#  |_|  |_|\___/|_| |_|_|\__\___/|_|  |_|_| |_|\__, |
-#                                               __/ |
-#                                              |___/ 
-
+  #   __  __             _ _             _
+  #  |  \/  |           (_) |           (_)
+  #  | \  / | ___  _ __  _| |_ ___  _ __ _ _ __   __ _
+  #  | |\/| |/ _ \| '_ \| | __/ _ \| '__| | '_ \ / _` |
+  #  | |  | | (_) | | | | | || (_) | |  | | | | | (_| |
+  #  |_|  |_|\___/|_| |_|_|\__\___/|_|  |_|_| |_|\__, |
+  #                                               __/ |
+  #                                              |___/
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -265,15 +261,16 @@ services:
     command: >-
       --path.rootfs=/host
       --web.listen-address=localhost:9100
-
+      --collector.textfile.directory=/textfiles
     pid: host
     restart: unless-stopped
     volumes:
-      - '/:/host:ro,rslave'
-  
+      - "/:/host:ro,rslave"
+      - ./apps-data/.node_exporter/textfiles:/textfiles/
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    networks: [ cluster ]
+    networks: [cluster]
     ports:
       - "127.0.0.1:8090:8080"
     volumes:
@@ -289,15 +286,15 @@ services:
       - ./prometheus/:/etc/prometheus/
       - ./apps-data/.prometheus:/prometheus/data
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.listen-address=${PROMETHEUS_ADDRESS:-localhost:9090}'
-      - '--storage.tsdb.retention.time=1y'
-      - '--web.enable-remote-write-receiver'
-    network_mode: 'host'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.listen-address=${PROMETHEUS_ADDRESS:-localhost:9090}"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-remote-write-receiver"
+    network_mode: "host"
     restart: unless-stopped
-  
+
   # Reverse Proxy with Nginx
   # ----------------------------------------------
   # upstream grafana {
@@ -312,13 +309,13 @@ services:
   grafana:
     image: grafana/grafana:10.1.0-ubuntu
     init: true
-    network_mode: 'host'
+    network_mode: "host"
     volumes:
       - ./apps-data/grafana:/var/lib/grafana
       - ./grafana/grafana.ini:/etc/grafana/grafana.ini
     environment:
       - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL}
-  
+
   caddy:
     image: caddy:2.7.5
     restart: unless-stopped
@@ -328,7 +325,7 @@ services:
       - ./caddy_data:/data
       - ./caddy_config:/config
       - ./certs:/certs
-    network_mode: 'host'
+    network_mode: "host"
 
 networks:
   cluster:
