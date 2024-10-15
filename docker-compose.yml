@@ -290,7 +290,7 @@ services:
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
       - "--web.listen-address=${PROMETHEUS_ADDRESS:-localhost:9090}"
-      - "--storage.tsdb.retention.time=1y"
+      - "--storage.tsdb.retention.time=30d"
       - "--web.enable-remote-write-receiver"
     network_mode: "host"
     restart: unless-stopped
