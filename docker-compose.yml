@@ -41,6 +41,38 @@ services:
           cpus: ${NETHERMIND_MAX_CPU:-1}
           memory: ${NETHERMIND_MAX_MEM:-16G}
 
+  besu:
+    image: hyperledger/besu:${BESU_VERSION:-}
+    restart: unless-stopped
+    init: true
+    networks: [cluster]
+    ports:
+      - "30303:30303/tcp" # P2P port
+      - "30303:30303/udp" # P2P port udp
+      - "127.0.0.1:8545:8545" # JSON-RPC
+      - "127.0.0.1:8645:8645" # metrics
+    volumes:
+      - ${DATA_FOLDER:-./apps-data}/.besu:/data/besu
+      - ./data/jwt:/jwt
+    command: >-
+      --network=${NETWORK}
+      --sync-mode=SNAP
+      --data-path=/data/besu
+      --data-storage-format=BONSAI
+      --rpc-http-port=8545
+      --rpc-http-enabled=true
+      --rpc-http-host=0.0.0.0
+      --host-allowlist=*
+      --engine-rpc-port=8551
+      --engine-host-allowlist=*
+      --engine-rpc-enabled
+      --engine-jwt-secret="/jwt/jwtsecret"
+      --metrics-enabled=true
+      --metrics-port=8645
+      --metrics-host=0.0.0.0
+      --p2p-host=0.0.0.0
+      --p2p-port=30303
+
   #   _____
   #  / ____|
   # | |     ___  _ __  ___  ___ _ __  ___ _   _ ___
