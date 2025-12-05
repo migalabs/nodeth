@@ -298,7 +298,7 @@ services:
       - ./apps-data/.node_exporter/textfiles:/textfiles/
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: ghcr.io/google/cadvisor:latest
     networks: [cluster]
     ports:
       - "127.0.0.1:8090:8080"
