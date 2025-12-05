@@ -72,6 +72,123 @@ services:
       --metrics-host=0.0.0.0
       --p2p-host=0.0.0.0
       --p2p-port=30303
+      
+  geth:
+    image: ethereum/client-go:${GETH_VERSION:-}
+    restart: unless-stopped
+    init: true
+    networks: [cluster]
+    ports:
+      - "30303:30303/tcp" # P2P port
+      - "30303:30303/udp" # P2P port udp
+      - "127.0.0.1:8545:8545" # JSON-RPC
+      - "127.0.0.1:8546:8546" # WebSocket API
+      - "127.0.0.1:6060:6060" # Metrics
+    volumes:
+      - ${DATA_FOLDER:-./data}/.geth:/root/.ethereum
+      - ./data/jwt:/jwt
+    command: >-
+      --${NETWORK:-mainnet}
+      --datadir=/root/.ethereum
+      --http
+      --http.addr=0.0.0.0
+      --http.port=8545
+      --http.api=eth,net,web3,engine
+      --ws
+      --ws.addr=0.0.0.0
+      --ws.port=8546
+      --authrpc.addr=0.0.0.0
+      --authrpc.port=8551
+      --authrpc.jwtsecret=/jwt/jwtsecret
+      --metrics
+      --metrics.addr=0.0.0.0
+      --metrics.port=6060
+    deploy:
+      resources:
+        limits:
+          cpus: ${GETH_MAX_CPU:-2}
+          memory: ${GETH_MAX_MEM:-8G}
+          
+  erigon:
+    image: erigontech/erigon:${ERIGON_VERSION:-latest}
+    restart: unless-stopped
+    init: true
+    networks: [cluster]
+    ports:
+      - "30303:30303/tcp" # P2P port
+      - "30303:30303/udp" # P2P port udp
+      - "127.0.0.1:8545:8545" # JSON-RPC
+      - "127.0.0.1:6061:6061" # Metrics
+      - "127.0.0.1:42069:42069/tcp" # BitTorrent sync
+      - "127.0.0.1:42069:42069/udp" # BitTorrent sync
+    volumes:
+      - erigon_data:/home/erigon/.local/share/erigon
+      - ./data/jwt:/jwt
+    command: >-
+      --chain=${NETWORK:-mainnet}
+      --datadir=/home/erigon/.local/share/erigon
+      --http
+      --http.addr=0.0.0.0
+      --http.port=8545
+      --http.api=eth,erigon,web3,net,debug,trace,txpool
+      --authrpc.addr=0.0.0.0
+      --authrpc.port=8551
+      --authrpc.jwtsecret=/jwt/jwtsecret
+      --metrics
+      --metrics.addr=0.0.0.0
+      --metrics.port=6061
+      --torrent.download.rate=${ERIGON_TORRENT_RATE:-20mb}
+    deploy:
+      resources:
+        limits:
+          cpus: ${ERIGON_MAX_CPU:-2}
+          memory: ${ERIGON_MAX_MEM:-8G}
+          
+  reth:
+    image: ghcr.io/paradigmxyz/reth:${RETH_VERSION:-latest}
+    restart: unless-stopped
+    init: true
+    networks: [cluster]
+    ports:
+      - "30303:30303/tcp" # P2P port
+      - "30303:30303/udp" # P2P port udp
+      - "127.0.0.1:8545:8545" # JSON-RPC
+      - "127.0.0.1:9002:9001" # Metrics
+    volumes:
+      - ${DATA_FOLDER:-./data}/.reth:/data
+      - ./data/jwt:/jwt
+    entrypoint: >
+      sh -c '
+      JWT_SECRET=$$(cat /jwt/jwtsecret);
+      if [ "${RETH_PRUNE_MODE:-full}" = "full" ]; then
+        PRUNE_OPT="--full";
+      else
+        PRUNE_OPT="--prune.receipts.distance 1000000 --prune.accounthistory.distance 1000000";
+      fi;
+      exec /usr/local/bin/reth node 
+      --datadir=/data 
+      --chain=${NETWORK:-mainnet} 
+      --metrics=0.0.0.0:9001 
+      --http 
+      --http.addr=0.0.0.0 
+      --http.port=8545 
+      --http.api=eth,net,web3 
+      --ws 
+      --ws.addr=0.0.0.0 
+      --ws.port=8546 
+      --rpc.jwtsecret="$$JWT_SECRET" 
+      --authrpc.addr=0.0.0.0 
+      --authrpc.port=8551 
+      $$PRUNE_OPT
+      '
+    environment:
+      - NETWORK=${NETWORK:-mainnet}
+      - RETH_PRUNE_MODE=${RETH_PRUNE_MODE:-full}
+    deploy:
+      resources:
+        limits:
+          cpus: ${RETH_MAX_CPU:-2}
+          memory: ${RETH_MAX_MEM:-8G}
 
   #   _____
   #  / ____|
@@ -140,13 +257,13 @@ services:
       --metrics
       --metrics-address=0.0.0.0
       --http-address=0.0.0.0
-      --port="{P2P_PORT:-9000}"
-      --execution-endpoints=http://nethermind:8551
+      --port="${P2P_PORT:-9000}"
+      --execution-endpoint=http://${EXECUTION_CLIENT}:8551
       --jwt-secrets=/jwt/jwtsecret
       --suggested-fee-recipient="${FEE_RECIPIENT}"
 
     volumes:
-      - ${DATA_FOLDER:-./data}/.lighthouse-archival:/var/lib/lighthouse
+      - ${DATA_FOLDER:-./data}/.lighthouse:/var/lib/lighthouse
       - ./data/jwt:/jwt
 
   prysm:
@@ -166,7 +283,7 @@ services:
       --${NETWORK:-mainnet}
       --checkpoint-sync-url=${CHECKPOINT_SYNC_URL:-}
       --suggested-fee-recipient=${FEE_RECIPIENT:-}
-      --execution-endpoint=http://nethermind:8551
+      --execution-endpoint=http://${EXECUTION_CLIENT}:8551
       --monitoring-host=0.0.0.0
       --rpc-host=0.0.0.0
       --p2p-tcp-port=${P2P_PORT:-13000}
@@ -180,71 +297,90 @@ services:
     image: consensys/teku:${TEKU_TAG:-}
     restart: unless-stopped
     init: true
+    user: "${UID:-1000}:${GID:-1000}"
     networks: [cluster]
-    user: ${UID}:${GID}
     ports:
-      - "127.0.0.1:8008:8008" # Prometheus metrics
-      - "127.0.0.1:5051:5051" # Rest port
-      - "${P2P_PORT:-9000}:${P2P_PORT:-9000}" # P2P port
+      - "9000:9000/tcp" # P2P port
+      - "9000:9000/udp" # P2P port udp
+      - "127.0.0.1:5051:5051" # REST API
+      - "127.0.0.1:8008:8008" # Metrics
     command: >-
       --network=${NETWORK:-mainnet}
       --data-path=/var/lib/teku_beacon
-      --checkpoint-sync-url=${CHECKPOINT_SYNC_URL:-}
-      --ee-endpoint=http://nethermind:8551
+      --ee-endpoint=http://${EXECUTION_CLIENT}:8551
       --ee-jwt-secret-file=/jwt/jwtsecret
-      --validators-proposer-default-fee-recipient=${FEE_RECIPIENT:-}
       --metrics-enabled=true
+      --metrics-port=8008
       --metrics-interface=0.0.0.0
       --rest-api-enabled=true
       --rest-api-interface=0.0.0.0
-      --rest-api-host-allowlist=*
-      --beacon-liveness-tracking-enabled=true
-      --p2p-port=${P2P_PORT:-9000}
-
+      --rest-api-port=5051
+      --rest-api-docs-enabled=true
+      --p2p-port=9000
+      --p2p-interface=0.0.0.0
+      --p2p-peer-lower-bound=64
+      --p2p-enabled=true
+      --validators-proposer-default-fee-recipient=${FEE_RECIPIENT:-0x0000000000000000000000000000000000000000}
+      --validators-graffiti=Teku
+      --log-destination=CONSOLE
+      --checkpoint-sync-url=${CHECKPOINT_SYNC_URL}
     volumes:
-      - ${DATA_FOLDER:-./data}/.teku:/var/lib/teku_beacon
+      - ${DATA_FOLDER:-./data}/.teku_beacon:/var/lib/teku_beacon
       - ./data/jwt:/jwt
-    # Check teku host directory permissions as it throws an error(777)
+    deploy:
+      resources:
+        limits:
+          cpus: ${TEKU_MAX_CPU:-2}
+          memory: ${TEKU_MAX_MEM:-8G}
 
   nimbus-trusted-sync:
-    image: statusim/nimbus-eth2:${NIMBUS_TAG:-}
-    restart: "no"
+    image: statusim/nimbus-eth2:${NIMBUS_TAG:-multiarch-latest}
     init: true
-    user: ${UID}:${GID}
+    user: "${UID:-1000}:${GID:-1000}"
     networks: [cluster]
-    command: >-
-      --network=${NETWORK:-}
-      trustedNodeSync
-      --trusted-node-url="${CHECKPOINT_SYNC_URL:-}"
-      --data-dir=/var/lib/nimbus_beacon
+    command:
+      - trustedNodeSync
+      - --network=${NETWORK:-mainnet}
+      - --data-dir=/var/lib/nimbus
+      - --trusted-node-url=${CHECKPOINT_SYNC_URL}
     volumes:
-      - ${DATA_FOLDER:-./data}/.nimbus:/var/lib/nimbus_beacon
+      - ${DATA_FOLDER:-./data}/.nimbus:/var/lib/nimbus
 
   nimbus:
-    image: statusim/nimbus-eth2:${NIMBUS_TAG:-}
+    image: statusim/nimbus-eth2:${NIMBUS_TAG:-multiarch-latest}
     restart: unless-stopped
     init: true
-    user: ${UID}:${GID}
+    user: "${UID:-1000}:${GID:-1000}"
     networks: [cluster]
     ports:
-      - "127.0.0.1:8009:8008" # Prometheus metrics
-      - "127.0.0.1:5053:5052" # Rest Port
-      - "${P2P_PORT:-9000}:${P2P_PORT:-9000}" # P2P port
-    command: >-
-      --network=${NETWORK:-}
-      --web3-url=http://nethermind:8551
-      --rest
-      --metrics
-      --jwt-secret=/jwt/jwtsecret
-      --suggested-fee-recipient=${FEE_RECIPIENT:-}
-      --log-file=/var/lib/jwtsecret/nimbus.log
-      --metrics-address=0.0.0.0
-      --tcp-port=${P2P_PORT:-9000} 
-      --udp-port=${P2P_PORT:-9000}
-
+      - "9000:9000/tcp" # P2P port
+      - "9000:9000/udp" # P2P port udp
+      - "127.0.0.1:5052:5052" # REST API
+      - "127.0.0.1:8008:8008" # Metrics
+    command:
+      - --network=${NETWORK:-mainnet}
+      - --data-dir=/var/lib/nimbus
+      - --web3-url=http://${EXECUTION_CLIENT}:8551
+      - --jwt-secret=/var/lib/jwt/jwtsecret
+      - --metrics
+      - --metrics-address=0.0.0.0
+      - --metrics-port=8008
+      - --rest
+      - --rest-address=0.0.0.0
+      - --rest-port=5052
+      - --tcp-port=9000
+      - --udp-port=9000
+      - --suggested-fee-recipient=${FEE_RECIPIENT:-0x0000000000000000000000000000000000000000}
+      - --insecure-netkey-password
+      - --non-interactive
     volumes:
-      - ${DATA_FOLDER:-./data}/.nimbus:/var/lib/nimbus_beacon
-      - ./data/jwt:/jwt
+      - ${DATA_FOLDER:-./data}/.nimbus:/var/lib/nimbus
+      - ./data/jwt:/var/lib/jwt
+    deploy:
+      resources:
+        limits:
+          cpus: ${NIMBUS_MAX_CPU:-2}
+          memory: ${NIMBUS_MAX_MEM:-8G}
 
   lodestar:
     image: chainsafe/lodestar:${LODESTAR_TAG:-}
@@ -260,7 +396,7 @@ services:
       --network=${NETWORK:-mainnet}
       --dataDir=/var/lib/lodestar_beacon
       --checkpointSyncUrl=${CHECKPOINT_SYNC_URL:-}
-      --execution.urls="http://nethermind:8551"
+      --execution.urls=http://${EXECUTION_CLIENT}:8551
       --network.connectToDiscv5Bootnodes
       --suggestedFeeRecipient=${FEE_RECIPIENT:-}
       --jwt-secret="/jwt/jwtsecret"
@@ -358,3 +494,6 @@ services:
 
 networks:
   cluster:
+
+volumes:
+  erigon_data:

@@ -1,6 +1,12 @@
+# Data directories
 apps-data/**
+data/**
+!data/.gitkeep
+!data/jwt/.gitkeep
 .env
 .vouch/data/*
 .vouch/vouch.yml
 data/checkpoint_data/*
-data/jwtsecret
+data/jwt/jwtsecret
+caddy_data/
+caddy_config/

@@ -65,6 +65,18 @@ scrape_configs:
   #   static_configs:
   #     - targets: ['localhost:5067']
   
+  # - job_name: 'nethermind'
+  #   static_configs:
+  #     - targets: ['localhost:8645']
+  
+  # - job_name: 'besu'
+  #   static_configs:
+  #     - targets: ['localhost:8645']
+  
+  - job_name: 'reth'
+    static_configs:
+      - targets: ['localhost:9002']  # Note: Using the mapped port
+  
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['localhost:8090']
